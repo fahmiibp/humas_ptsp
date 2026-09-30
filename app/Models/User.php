@@ -11,9 +11,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password'])]
+// 1. Tambahkan dua baris import ini
+use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Support\Facades\Storage;
+
+#[Fillable(['name', 'email', 'password', 'avatar'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+// 2. Tambahkan 'implements HasAvatar' pada deklarasi class
+class User extends Authenticatable implements HasAvatar
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles;
@@ -29,5 +34,19 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * 3. Tambahkan fungsi ini agar Filament tahu dari mana mengambil URL gambar
+     */
+    public function getFilamentAvatarUrl(): ?string
+    {
+        // Jika kolom avatar di database tidak kosong, ambil URL gambarnya dari storage
+        if ($this->avatar) {
+            return Storage::url($this->avatar);
+        }
+
+        // Jika kosong, kembalikan null agar Filament menggunakan inisial nama secara default
+        return null;
     }
 }

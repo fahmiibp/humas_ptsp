@@ -8,6 +8,6 @@ class Arsip extends Model
 {
     protected $table = 'arsip';
     protected $fillable = [
-        'file_name'
+        'title', 'drive_url', 'event_date', 'photograper_name', 'notes', 'sample_photos'
     ];
 }

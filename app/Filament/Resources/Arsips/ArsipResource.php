@@ -15,12 +15,15 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ArsipResource extends Resource
 {
+    protected static string | UnitEnum | null $navigationGroup = 'Produksi Konten';
+
     protected static ?string $model = Arsip::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBoxArrowDown;
 
     protected static ?string $recordTitleAttribute = 'Arsip';
 
