@@ -25,7 +25,12 @@ class ArsipResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBoxArrowDown;
 
-    protected static ?string $recordTitleAttribute = 'Arsip';
+    protected static ?string $navigationLabel = 'Arsip Dokumentasi';
+
+    protected static ?string $pluralModelLabel = 'Arsip Dokumentasi Liputan';
+
+    protected static ?string $recordTitleAttribute = 'nama_kegiatan';
+
 
     public static function form(Schema $schema): Schema
     {

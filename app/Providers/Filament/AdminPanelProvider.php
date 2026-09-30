@@ -27,6 +27,8 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
+            ->favicon(asset('image/logo.png'))
+            ->brandName('PTSP')
             ->id('admin')
             ->path('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')

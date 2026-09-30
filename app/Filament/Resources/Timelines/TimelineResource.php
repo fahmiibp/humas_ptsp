@@ -19,7 +19,7 @@ use UnitEnum;
 
 class TimelineResource extends Resource
 {
-    protected static string | UnitEnum | null $navigationGroup = 'Produksi Konten';
+    protected static string | UnitEnum | null $navigationGroup = 'Manajemen';
 
     protected static ?string $model = Timeline::class;
 

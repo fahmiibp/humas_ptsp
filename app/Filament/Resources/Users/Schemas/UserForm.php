@@ -47,7 +47,8 @@ class UserForm
                     ->relationship('roles', 'name')
                     ->multiple()
                     ->preload()
-                    ->searchable(),
+                    ->searchable()
+                    ->required(),
             ]);
     }
 }
