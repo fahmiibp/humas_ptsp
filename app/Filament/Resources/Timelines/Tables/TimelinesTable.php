@@ -18,8 +18,20 @@ class TimelinesTable
                 TextColumn::make('event_name'),
                 TextColumn::make('start_date')
                     ->date('d-m-Y'),
-                TextColumn::make('end_date'),
+                TextColumn::make('end_date')
+                    ->date('d-m-Y'),
                 TextColumn::make('location'),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'Belum Mulai' => 'info',
+                        'Sedang Berlangsung' => 'warning', // Warna kuning
+                        'Selesai' => 'success',          // Warna hijau
+                        'Batal' => 'danger',
+                        default => 'gray',
+                    })
+                    ->sortable(),
+
             ])
             ->filters([
                 //
