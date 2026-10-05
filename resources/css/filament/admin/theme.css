@@ -1,7 +1,110 @@
-@import '../../../../vendor/filament/filament/resources/css/theme.css';
-
+@import "../../../../vendor/filament/filament/resources/css/theme.css";
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../resources/views/livewire/**/*';
-
-
+/* =========================
+   CONTENT CALENDAR CUSTOM
+========================= */
+.fc {
+    font-family: inherit;
+}
+.fc .fc-toolbar {
+    margin-bottom: 1.25rem !important;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+.fc .fc-toolbar-title {
+    font-size: 1.25rem !important;
+    font-weight: 700;
+    color: #111827;
+}
+.fc .fc-button {
+    background: #f8fafc !important;
+    border: 1px solid #dbeafe !important;
+    color: #0f172a !important;
+    border-radius: 12px !important;
+    padding: 0.5rem 0.9rem !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+}
+.fc .fc-button:hover {
+    background: #ecfdf5 !important;
+    border-color: #10b981 !important;
+    color: #065f46 !important;
+}
+.fc .fc-button.fc-button-active,
+.fc .fc-button:focus {
+    background: #10b981 !important;
+    border-color: #10b981 !important;
+    color: white !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+.fc .fc-col-header-cell {
+    background: #f8fafc;
+    padding: 0.75rem 0;
+}
+.fc .fc-col-header-cell-cushion {
+    color: #334155;
+    font-weight: 700;
+    text-decoration: none !important;
+}
+.fc .fc-daygrid-day {
+    transition: background 0.2s ease;
+}
+.fc .fc-daygrid-day:hover {
+    background: #f8fafc;
+}
+.fc .fc-daygrid-day-frame {
+    min-height: 110px;
+    padding: 6px;
+}
+.fc .fc-daygrid-day-number {
+    color: #0f172a;
+    font-weight: 700;
+    text-decoration: none !important;
+    padding: 6px 8px;
+    border-radius: 8px;
+}
+.fc .fc-day-today {
+    background: #ecfdf5 !important;
+}
+.fc .fc-day-today .fc-daygrid-day-number {
+    background: #10b981;
+    color: white !important;
+}
+.fc .fc-event {
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 2px 6px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+}
+.fc .fc-event:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
+}
+.fc .fc-daygrid-more-link {
+    color: #0f766e !important;
+    font-weight: 600;
+}
+/* =========================
+   CALENDAR EVENT CUSTOM
+========================= */
+.calendar-event-custom {
+    padding: 3px 5px;
+}
+.calendar-event-custom .event-title {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+.calendar-event-custom .event-time {
+    margin-top: 3px;
+    font-size: 10px;
+    opacity: 0.85;
+    font-weight: 500;
+}
