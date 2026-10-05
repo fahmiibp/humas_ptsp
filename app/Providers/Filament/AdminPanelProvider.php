@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Providers\Filament;
-
 use App\Livewire\TimelineCustomCalendar;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
@@ -12,6 +10,8 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -20,9 +20,17 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-
 class AdminPanelProvider extends PanelProvider
 {
+    public function boot(): void
+    {
+        FilamentAsset::register([
+            Js::make(
+                'content-calendar',
+                resource_path('js/app.js')
+            ),
+        ]);
+    }
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -48,7 +56,6 @@ class AdminPanelProvider extends PanelProvider
                 TimelineCustomCalendar::class
             ])
             ->topbar(false)
-
             ->plugin(
                 FilamentShieldPlugin::make()
                     ->navigationLabel('Permission')                  // string|Closure|null
