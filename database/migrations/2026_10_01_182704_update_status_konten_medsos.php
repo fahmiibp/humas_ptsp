@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration {
     public function up(): void
     {
-        DB::statement("
+       /*   DB::statement("
             ALTER TABLE konten_medsos
             MODIFY status
             ENUM(
@@ -16,12 +16,12 @@ return new class extends Migration {
                 'Published'
             )
             DEFAULT 'Draft'
-        ");
+        ");*/
     }
 
     public function down(): void
     {
-        DB::statement("
+        /* DB::statement("
             ALTER TABLE konten_medsos
             MODIFY status
             ENUM(
@@ -30,6 +30,6 @@ return new class extends Migration {
                 'Publish'
             )
             DEFAULT 'Draft'
-        ");
+        "); */
     }
 };
