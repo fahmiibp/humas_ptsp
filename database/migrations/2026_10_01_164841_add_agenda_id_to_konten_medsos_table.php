@@ -7,16 +7,16 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::table('konten_medsos', function (Blueprint $table) {
+        /* Schema::table('konten_medsos', function (Blueprint $table) {
             $table->unsignedBigInteger('agenda_id')
                 ->nullable()
                 ->after('status');
-        });
+        }); */
     }
     public function down(): void
     {
-        Schema::table('konten_medsos', function (Blueprint $table) {
+       /*   Schema::table('konten_medsos', function (Blueprint $table) {
             $table->dropColumn('agenda_id');
-        });
+        });*/
     }
 };

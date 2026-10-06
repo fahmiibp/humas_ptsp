@@ -8,16 +8,16 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('konten_medsos', function (Blueprint $table) {
+        /*  Schema::table('konten_medsos', function (Blueprint $table) {
             $table->time('jam_tayang')
                 ->nullable()
                 ->after('tanggal');
-        });
+        });*/
     }
     public function down(): void
     {
-        Schema::table('konten_medsos', function (Blueprint $table) {
+       /*  Schema::table('konten_medsos', function (Blueprint $table) {
             $table->dropColumn('jam_tayang');
-        });
+        }); */
     }
 };
