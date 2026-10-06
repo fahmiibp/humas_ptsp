@@ -13,7 +13,10 @@ class ListWartas extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+            ->label('Tambah Warta')
+            ->icon('heroicon-o-plus')
+            ->url($this->getResource()::getUrl('create')),
         ];
     }
 }
