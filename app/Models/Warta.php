@@ -24,4 +24,14 @@ class Warta extends Model
     protected $casts = [
         'dokumentasi_utama' => 'array',
     ];
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'users_id');
+    }
+
+    public function timeline()
+    {
+        return $this->belongsTo(Timeline::class, 'timeline_id');
+    }
 }
