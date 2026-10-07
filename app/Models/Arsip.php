@@ -8,6 +8,11 @@ class Arsip extends Model
 {
     protected $table = 'arsip';
     protected $fillable = [
-        'title', 'drive_url', 'event_date', 'photograper_name', 'notes', 'sample_photos'
+        'id_timeline','title', 'drive_url', 'event_date', 'photograper_name', 'notes', 'sample_photos'
     ];
+
+    public function photograper()
+    {
+        return $this->belongsTo(User::class, 'photograper_name');
+    }
 }

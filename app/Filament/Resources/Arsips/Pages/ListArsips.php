@@ -42,30 +42,69 @@ class ListArsips extends ListRecords
         ];
     }
 
-    /**
-     * Membuat Tab Filter "Semua Arsip", "Bulan Ini", "Bulan Lalu", "Tahun Ini"
-     */
+    
     public function getTabs(): array
-    {
-        return [
-            'semua' => TabsTab::make('Semua Arsip')
-                ->icon('heroicon-m-folder')
-                ->badge(Arsip::count()),
+{
+    return [
 
-            'bulan_ini' => TabsTab::make('Bulan Ini')
-                ->icon('heroicon-m-calendar')
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year))
-                ->badge(Arsip::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count()),
+        'semua' => TabsTab::make('Semua Arsip')
+            ->icon('heroicon-m-folder')
+            ->badge(Arsip::count()),
 
-            'bulan_lalu' => TabsTab::make('Bulan Lalu')
-                ->icon('heroicon-m-clock')
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereMonth('created_at', now()->subMonth()->month)->whereYear('created_at', now()->subMonth()->year))
-                ->badge(Arsip::whereMonth('created_at', now()->subMonth()->month)->whereYear('created_at', now()->subMonth()->year)->count()),
 
-            'tahun_ini' => TabsTab::make('Tahun Ini')
-                ->icon('heroicon-m-calendar-days')
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereYear('created_at', now()->year))
-                ->badge(Arsip::whereYear('created_at', now()->year)->count()),
-        ];
-    }
+        'bulan_ini' => TabsTab::make('Bulan Ini')
+            ->icon('heroicon-m-calendar')
+            ->modifyQueryUsing(
+                fn (Builder $query) =>
+                    $query->whereMonth('event_date', now()->month)
+                        ->whereYear('event_date', now()->year)
+            )
+            ->badge(
+                Arsip::whereMonth('event_date', now()->month)
+                    ->whereYear('event_date', now()->year)
+                    ->count()
+            ),
+
+
+
+        'bulan_lalu' => TabsTab::make('Bulan Lalu')
+            ->icon('heroicon-m-clock')
+            ->modifyQueryUsing(
+                fn (Builder $query) =>
+                    $query->whereMonth(
+                            'event_date',
+                            now()->subMonth()->month
+                        )
+                        ->whereYear(
+                            'event_date',
+                            now()->subMonth()->year
+                        )
+            )
+            ->badge(
+                Arsip::whereMonth(
+                        'event_date',
+                        now()->subMonth()->month
+                    )
+                    ->whereYear(
+                        'event_date',
+                        now()->subMonth()->year
+                    )
+                    ->count()
+            ),
+
+
+
+        'tahun_ini' => TabsTab::make('Tahun Ini')
+            ->icon('heroicon-m-calendar-days')
+            ->modifyQueryUsing(
+                fn (Builder $query) =>
+                    $query->whereYear('event_date', now()->year)
+            )
+            ->badge(
+                Arsip::whereYear('event_date', now()->year)
+                    ->count()
+            ),
+
+    ];
+}
 }

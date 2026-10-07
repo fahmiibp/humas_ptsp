@@ -21,7 +21,6 @@ class WartasTable
                 'xl' => 3,
             ])
             ->columns([
-
                 ImageColumn::make('dokumentasi_utama')
                     ->extraAttributes([
                             'class' => '-mx-4 -mt-4 mb-3 w-[calc(100%+2rem)] max-w-none overflow-hidden rounded-t-xl',

@@ -19,13 +19,15 @@ use UnitEnum;
 
 class TimelineResource extends Resource
 {
-    protected static string | UnitEnum | null $navigationGroup = 'Manajemen';
+    protected static string | UnitEnum | null $navigationGroup = 'Manajemen Agenda';
 
     protected static ?string $model = Timeline::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
     protected static ?string $recordTitleAttribute = 'Timeline';
+
+    protected static ?string $navigationLabel = 'Agenda Liputan';
 
     public static function form(Schema $schema): Schema
     {
