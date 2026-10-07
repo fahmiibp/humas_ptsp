@@ -19,9 +19,9 @@ class WartaResource extends Resource
 {
     protected static ?string $model = Warta::class;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Manajemen';
+    protected static string | UnitEnum | null $navigationGroup = 'Produksi Konten';
 
-    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedNewspaper;
+    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedGlobeAlt;
 
     // Diubah ke nama kolom tabel agar fitur pencarian global berfungsi
     protected static ?string $recordTitleAttribute = 'judul_siaran_pers';
