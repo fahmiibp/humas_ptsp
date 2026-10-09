@@ -20,11 +20,18 @@ class KontenMedsos extends Model
         'status',
         'jam_tayang',
         'gambar',
-        'hashtag',
+        'hastag',
         'format',
         'link',
         'agenda_id',
 
     ];
+    protected function casts(): array
+    {
+        return [
+            'hastag' => 'array',
+            'tanggal' => 'date',
+        ];
+    }
 
 }
