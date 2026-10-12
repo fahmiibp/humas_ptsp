@@ -1,29 +1,28 @@
 <x-filament-widgets::widget>
-    <div class="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-lg text-white">
+    <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-linear-65 from-white-500 to-green-500 dark:bg-[#111827] p-6 shadow-xl space-y-6">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             
             <!-- Sisi Kiri: Badge, Judul & Subtitle -->
             <div class="space-y-3">
                 <!-- Baris Badge & Tanggal -->
                 <div class="flex items-center gap-3">
-                    <!-- Filament v3 Native Badge -->
                     <x-filament::badge color="info" size="sm">
                         Portal WARTA PTSP
                     </x-filament::badge>
                     
-                    <span class="text-xs sm:text-sm text-gray-400 font-medium">
+                    <span class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">
                         {{ $todayDate }}
                     </span>
                 </div>
 
                 <!-- Judul Utama -->
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
-                    Selamat bertugas, {{ $userName }}! 👋
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    Selamat bertugas, <span class="text-blue-600 dark:text-blue-400">{{ $userName }}</span>! 👋
                 </h1>
 
                 <!-- Subtitle Informasi -->
-                <p class="text-sm text-gray-400 leading-relaxed max-w-2xl">
-                    Hari ini terdapat <strong class="text-white font-semibold">{{ $agendaCount }} agenda liputan</strong> terjadwal dan <strong class="text-amber-400 font-semibold">{{ $reviewCount }} naskah rilis warta</strong> yang menunggu peninjauan redaksi.
+                <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl">
+                    Hari ini terdapat <strong class="text-gray-900 dark:text-white font-semibold">{{ $agendaCount }} agenda liputan</strong> terjadwal dan <strong class="text-amber-600 dark:text-amber-400 font-semibold">{{ $reviewCount }} naskah rilis warta</strong> yang menunggu peninjauan redaksi.
                 </p>
             </div>
 

@@ -19,10 +19,10 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <a href="{{ \App\Filament\Resources\RencanaKontenMedsos\RencanaKontenMedsosResource::getUrl('create') }}"
+            <!-- <a href="{{ \App\Filament\Resources\RencanaKontenMedsos\RencanaKontenMedsosResource::getUrl('create') }}"
                 class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-sm transition">
                 + Buat Konten
-            </a>
+            </a> -->
 
             <div class="flex items-center border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden ml-2">
                 <button wire:click="previousMonth" type="button"

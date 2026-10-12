@@ -19,7 +19,7 @@ use UnitEnum;
 
 class UserResource extends Resource
 {
-    protected static string | UnitEnum | null $navigationGroup = 'Pengaturan Sistem';
+    protected static string | UnitEnum | null $navigationGroup = 'Setting';
 
     protected static ?string $model = User::class;
 
@@ -49,6 +49,11 @@ class UserResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 
     public static function getPages(): array

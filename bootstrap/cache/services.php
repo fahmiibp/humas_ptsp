@@ -54,8 +54,9 @@
     50 => 'Pest\\Laravel\\PestServiceProvider',
     51 => 'RyanChandler\\BladeCaptureDirective\\BladeCaptureDirectiveServiceProvider',
     52 => 'Spatie\\Permission\\PermissionServiceProvider',
-    53 => 'App\\Providers\\AppServiceProvider',
-    54 => 'App\\Providers\\Filament\\AdminPanelProvider',
+    53 => 'STS\\FilamentImpersonate\\FilamentImpersonateServiceProvider',
+    54 => 'App\\Providers\\AppServiceProvider',
+    55 => 'App\\Providers\\Filament\\AdminPanelProvider',
   ),
   'eager' => 
   array (
@@ -97,8 +98,9 @@
     35 => 'Pest\\Laravel\\PestServiceProvider',
     36 => 'RyanChandler\\BladeCaptureDirective\\BladeCaptureDirectiveServiceProvider',
     37 => 'Spatie\\Permission\\PermissionServiceProvider',
-    38 => 'App\\Providers\\AppServiceProvider',
-    39 => 'App\\Providers\\Filament\\AdminPanelProvider',
+    38 => 'STS\\FilamentImpersonate\\FilamentImpersonateServiceProvider',
+    39 => 'App\\Providers\\AppServiceProvider',
+    40 => 'App\\Providers\\Filament\\AdminPanelProvider',
   ),
   'deferred' => 
   array (

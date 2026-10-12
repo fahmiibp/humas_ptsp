@@ -225,4 +225,11 @@
       0 => 'Spatie\\Permission\\PermissionServiceProvider',
     ),
   ),
+  'stechstudio/filament-impersonate' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'STS\\FilamentImpersonate\\FilamentImpersonateServiceProvider',
+    ),
+  ),
 );
