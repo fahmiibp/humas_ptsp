@@ -15,12 +15,16 @@ class TimelinesTable
     {
         return $table
             ->columns([
-                TextColumn::make('event_name'),
+                TextColumn::make('event_name')
+                ->label('Nama Kegiatan'),
                 TextColumn::make('start_date')
+                ->label('Tanggal Mulai')
                     ->date('d-m-Y'),
                 TextColumn::make('end_date')
+                ->label('Tanggal Selesai')
                     ->date('d-m-Y'),
-                TextColumn::make('location'),
+                TextColumn::make('location')
+                ->label('Lokasi'),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {

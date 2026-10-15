@@ -27,6 +27,10 @@ class TimelineResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Timeline';
 
+    protected static ?string $modelLabel = 'Lini Masa';
+
+    protected static ?string $pluralModelLabel = 'Lini Masa';
+
     protected static ?string $navigationLabel = 'Agenda Liputan';
 
     public static function form(Schema $schema): Schema

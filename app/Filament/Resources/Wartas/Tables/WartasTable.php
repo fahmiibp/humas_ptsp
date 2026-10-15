@@ -114,7 +114,8 @@ class WartasTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                ->label('Ubah'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

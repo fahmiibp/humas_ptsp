@@ -43,6 +43,7 @@ class RencanaKontenMedsosForm
 
                         FileUpload::make('gambar')
                             ->label('Gambar Konten')
+                            ->helperText('Pilih atau tarik file gambar ke sini')
                             ->disk('public')
                             ->directory('Gambar Konten')
                             ->image()
@@ -60,6 +61,7 @@ class RencanaKontenMedsosForm
 
                         Select::make('platform')
                             ->label('Platform')
+                            ->placeholder('Pilih Platform')
                             ->options([
                                 'youtube' => 'YouTube',
                                 'instagram' => 'Instagram',
@@ -77,6 +79,7 @@ class RencanaKontenMedsosForm
 
                         Select::make('format')
                             ->label('Format Konten')
+                            ->placeholder('Pilih Format Konten')
                             ->options([
                                 'video_upload' => 'Video / Upload',
                                 'reels_video_pendek' => 'Reels / Video Pendek',

@@ -15,7 +15,7 @@ class UserForm
         return $schema
             ->components([
                 FileUpload::make('avatar')
-                    ->label('unggah_avatar')
+                    ->label('Avatar')
                     ->image()
                     ->avatar()
                     ->disk('public')
@@ -25,25 +25,27 @@ class UserForm
                     ->maxSize(2040)
                     ->alignCenter(),
                 TextInput::make('name')
+                    ->label('Nama')
                     ->required(),
                 TextInput::make('email')
-                    ->label('Email address')
+                    ->label('Alamat Email')
                     ->email()
                     ->required(),
-                DateTimePicker::make('email_verified_at'),
+                DateTimePicker::make('email_verified_at')
+                    ->label('Waktu Verifikasi Email'),
                 TextInput::make('password')
                     ->label('Kata Sandi')
                     ->password()
                     ->revealable()
-                    // Password hanya wajib saat buat akun baru, opsional saat diedit
                     ->required(fn(string $operation): bool => $operation === 'create')
                     ->dehydrated(fn(?string $state): bool => filled($state))
                     ->maxLength(255)
                     ->helperText(
                         fn(string $operation): string =>
-                        $operation === 'edit' ? 'Kosongkan jika tidak ingin mengubah kata sandi.' : ''
+                            $operation === 'edit' ? 'Kosongkan jika tidak ingin mengubah kata sandi.' : ''
                     ),
                 Select::make('roles')
+                    ->label('Peran')
                     ->relationship('roles', 'name')
                     ->multiple()
                     ->preload()

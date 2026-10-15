@@ -89,15 +89,20 @@ class RencanaKontenMedsosTable
             ])
             ->actions([
                 EditAction::make()
-                    ->label('Edit')
+                    ->label('Ubah')
                     ->color('primary')
                     ->icon('heroicon-o-pencil-square'),
                 ViewAction::make()
-                    ->label('View')
+                    ->label('Lihat')
+                    ->modalHeading('Lihat Konten Medsos')
                     ->color('gray')
                     ->icon('heroicon-o-eye'),
                 DeleteAction::make()
-                    ->label('Delete')
+                    ->label('Hapus')
+                    ->modalHeading('Hapus Konten Medsos')
+                    ->modalDescription('Apakah Anda yakin ingin menghapus konten ini?')
+                    ->modalSubmitActionLabel('Ya, Hapus')
+                    ->modalCancelActionLabel('Batal')
                     ->color('danger')
                     ->icon('heroicon-o-trash'),
             ])

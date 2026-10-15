@@ -11,15 +11,16 @@ class ListRencanaKontenMedsos extends ListRecords
 {
     protected static string $resource = RencanaKontenMedsosResource::class;
 
-    
+    protected static ?string $breadcrumb = 'Daftar';
+
     protected function getHeaderActions(): array
     {
-        
         return [
-            CreateAction::make(),
+            \Filament\Actions\CreateAction::make()
+                ->label('Buat Konten Medsos'),
         ];
     }
-
+    
     protected function getHeaderWidgets(): array
     {
         return [

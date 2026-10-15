@@ -18,19 +18,24 @@ class UsersTable
         return $table
             ->columns([
                 ImageColumn::make('avatar')
+                    ->label('Avatar')
                     ->disk('public')
                     ->circular(),
                 TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label('Alamat Email')
                     ->searchable(),
-                TextColumn::make('roles.name'),
+                TextColumn::make('roles.name')
+                ->label('Peran'),
                 TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Diperbarui Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -38,12 +43,12 @@ class UsersTable
             ->filters([
                 //
             ])
-            ->recordActions([
+            ->actions([
                 Impersonate::make()->iconButton(),
                 ViewAction::make(),
                 EditAction::make(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

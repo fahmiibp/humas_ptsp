@@ -13,6 +13,10 @@ use Illuminate\Database\Eloquent\Builder;
 class ListWartas extends ListRecords
 {
     protected static string $resource = WartaResource::class;
+    
+    protected static ?string $title = 'Daftar Warta';
+
+    protected static ?string $breadcrumb = 'Daftar';
 
     protected function getHeaderActions(): array
     {

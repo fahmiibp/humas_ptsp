@@ -15,14 +15,23 @@ class TimelineForm
         return $schema
             ->components([
                 TextInput::make('event_name')
-                ->required(),
-                DatePicker::make('start_date')
-                ->required(),
-                DatePicker::make('end_date')
-                ->required(),
+                    ->label('Nama Kegiatan')
+                    ->required(),
+
                 TextInput::make('location')
-                ->required(),
+                    ->label('Lokasi')
+                    ->required(),
+
+                DatePicker::make('start_date')
+                    ->label('Tanggal Mulai')
+                    ->required(),
+             
+                DatePicker::make('end_date')
+                    ->label('Tanggal Selesai')
+                    ->required(),
+
                 Select::make('status')
+                    ->label('Status')
                     ->options([
                         'Belum Mulai' => 'Belum Mulai',
                         'Sedang Berlangsung' => 'Sedang Berlangsung',

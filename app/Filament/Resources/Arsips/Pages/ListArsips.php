@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ListArsips extends ListRecords
 {
     protected static string $resource = ArsipResource::class;
+    protected static ?string $breadcrumb = 'Daftar';
 
     public function getTitle(): string
     {

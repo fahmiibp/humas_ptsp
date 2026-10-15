@@ -25,24 +25,34 @@ class ArsipForm
                         Select::make('id_timeline')
                             ->options(Timeline::query()->pluck('event_name', 'id'))
                             ->label('Nama Kegiatan')
+                            ->placeholder('Masukan Nama Kegiatan')
                             ->helperText('Pilih Nama Kegiatan')
                             ->required(),
                         TextInput::make('title')
+                            ->label('Judul')
                             ->placeholder('Contoh : Peresmian Gedung DPMPTSP')
                             ->helperText('Gunakan Kalimat Yang Singkat Saja')
                             ->required(),
                         DatePicker::make('event_date')
+                            ->label('Tanggal Kegiatan')
                             ->required(),
                         TextInput::make('drive_url')
+                            ->label('Link Google Drive')
+                            ->placeholder('Masukan Link Google Drive Disini')
                             ->helperText('Masukan Link Google Drive Disini')
                             ->required(),
                         Select::make('photograper_name')
+                            ->label('Nama Fotografer')
+                            ->placeholder('Pilih Fotografer')
                             ->options(User::query()->pluck('name', 'id'))
                             ->required(),
                         Textarea::make('notes')
+                        ->label('Catatan')
+                        ->placeholder('Tambahkan Catatan Jika Diperlukan')
                         ->dehydrateStateUsing(fn ($state) => $state ?? ''),
                         FileUpload::make('sample_photos')
                             ->label('Cover Foto')
+                            ->helperText('Pilih atau tarik file gambar ke sini')
                             ->image()
                             ->disk('public')
                             ->directory('Cover_Foto')

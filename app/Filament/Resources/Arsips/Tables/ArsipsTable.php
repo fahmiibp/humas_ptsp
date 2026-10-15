@@ -151,6 +151,9 @@ class ArsipsTable
                     ->button()
                     ->color('warning'),
             ])
+            ->emptyStateHeading('Belum Ada Arsip Dokumentasi Liputan')
+            ->emptyStateDescription('Slahkan tambahkan arsip dokumentasi liputan baru')
+            
             ->toolbarActions([
                 BulkActionGroup::make([]),
             ]);
