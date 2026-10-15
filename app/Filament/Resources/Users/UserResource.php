@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
+use Illuminate\Database\Eloquent\Model;
 
 class UserResource extends Resource
 {
@@ -55,6 +56,17 @@ class UserResource extends Resource
     {
         return static::getModel()::count();
     }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email'];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return $record->name ;
+    }
+
 
     public static function getPages(): array
     {

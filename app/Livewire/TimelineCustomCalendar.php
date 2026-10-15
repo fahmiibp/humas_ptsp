@@ -3,12 +3,14 @@
 namespace App\Livewire;
 
 use App\Models\Timeline;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Filament\Widgets\Widget;
 
 class TimelineCustomCalendar extends Widget
 {
+    use HasWidgetShield;
     protected string $view = 'livewire.timeline-custom-calendar';
 
     protected int | string | array $columnSpan = 'full';

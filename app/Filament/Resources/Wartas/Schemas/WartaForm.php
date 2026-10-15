@@ -14,12 +14,16 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class WartaForm
 {
     public static function configure(Schema $schema): Schema
     {
+
+    $isReviewing = fn (?Model $record) => $record && $record->status_naskah === 'Perlu Review Koordinator';
+
         return $schema
             ->components([
                 Section::make('Informasi Siaran Pers')
@@ -39,7 +43,9 @@ class WartaForm
                                 fn(Set $set, ?string $state) =>
                                 $set('slug_url', Str::slug($state ?? ''))
                             )
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->disabled($isReviewing)
+                            ->disabled(fn (?Model $record) => $record && !in_array($record->status_naskah, ['Draft Penulis', 'Perlu Revisi'])),
 
                         TextInput::make('slug_url')
                             ->label('Slug URL')
@@ -53,7 +59,8 @@ class WartaForm
                                 ignoreRecord: true
                             )
                             ->maxLength(255)
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->disabled($isReviewing),
 
                         Textarea::make('lead_berita')
                             ->label('Lead Berita')
@@ -61,7 +68,8 @@ class WartaForm
                             ->helperText('Ringkasan singkat yang menjelaskan inti berita.')
                             ->required()
                             ->maxLength(500)
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->disabled($isReviewing),
                     ])
                     ->columns(2)
                     ->columnSpanFull()
@@ -90,7 +98,8 @@ class WartaForm
                                 'undo',
                             ])
                             ->required()
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->disabled($isReviewing),
                     ])
                     ->columnSpanFull(),
                 Section::make('Publikasi dan Penjadwalan')
@@ -106,16 +115,16 @@ class WartaForm
                                 'Disetujui' => 'Disetujui',
                                 'Sudah Tayang' => 'Sudah Tayang',
                             ])
-                            ->placeholder('Pilih status naskah')
-                            ->native(false)
-                            ->required(),
-
+                            ->required()
+                            ->default('Draft Penulis')
+                            ->disabled($isReviewing),
                         DatePicker::make('jadwal_tayang')
                             ->label('Jadwal Tayang')
                             ->placeholder('Pilih tanggal tayang')
                             ->native(false)
                             ->displayFormat('d F Y')
-                            ->required(),
+                            ->required()
+                            ->disabled($isReviewing),
 
                         Select::make('timeline_id')
                             ->label('Agenda / Timeline')
@@ -128,7 +137,8 @@ class WartaForm
                             ->preload()
                             ->native(false)
                             ->placeholder('Pilih agenda terkait')
-                            ->required(),
+                            ->required()
+                            ->disabled($isReviewing),
 
                         Select::make('users_id')
                             ->label('Penanggung Jawab')
@@ -144,7 +154,8 @@ class WartaForm
                             ->required(),
                     ])
                     ->columns(2)
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->disabled($isReviewing),
 
                 Section::make('Dokumentasi dan Cover')
                     ->description('Unggah foto utama untuk kebutuhan publikasi berita.')
@@ -167,13 +178,17 @@ class WartaForm
                             ->panelLayout('integrated')
                             ->helperText('Format gambar yang didukung mengikuti konfigurasi Laravel. Ukuran maksimal 2 MB.')
                             ->required()
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->disabled($isReviewing),
 
                         Textarea::make('catatan_koreksi')
-                            ->label('Catatan Koreksi')
-                            ->placeholder('Tuliskan catatan revisi, masukan editor, atau arahan publikasi...')
-                            ->helperText('Catatan untuk penulis atau koordinator terkait perbaikan naskah.')
+                            ->label('Catatan Koreksi / Revisi dari Koordinator')
+                            ->helperText('Isi catatan ini jika naskah memerlukan perbaikan dari penulis.')
                             ->rows(4)
+                            ->placeholder('Tuliskan poin-poin koreksi atau revisi di sini...')
+                            // Muncul otomatis jika status bukan 'Draft Penulis'
+                            ->visible(fn(?Model $record): bool => $record && $record->status_naskah !== 'Draft Penulis')
+                            ->disabled(true)
                             ->columnSpanFull(),
                     ])
                     ->columnSpanFull()

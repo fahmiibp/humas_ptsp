@@ -4,7 +4,6 @@ namespace App\Filament\Pages;
 
 use BackedEnum;
 use Filament\Pages\Page;
-
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Schema;
@@ -12,7 +11,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Notifications\Notification;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -90,8 +88,7 @@ class Profile extends Page
                                     ->required(),
 
                                 TextInput::make('phone')
-
-                                    ->label('Nomor WhatsApp / HP'),
+                                    ->label('Nomor WhatsApp / HP')                                    
 
                             ])
                             ->columnSpan(2),
@@ -101,23 +98,19 @@ class Profile extends Page
                             ->description('Kosongkan jika tidak ingin mengganti password')
                             ->schema([
 
-                                TextInput::make('current_password')
-
-                                    ->label('Password Lama')
-                                    ->password()
-                                    ->revealable(),
-
                                 TextInput::make('password')
 
                                     ->label('Password Baru')
                                     ->password()
-                                    ->revealable(),
+                                    ->revealable()
+                                    ->autocomplete('new-password'),
 
                                 TextInput::make('password_confirmation')
 
                                     ->label('Konfirmasi Password Baru')
                                     ->password()
-                                    ->revealable(),
+                                    ->revealable()
+                                    ->autocomplete('new-password'),
 
                             ])
 
@@ -133,6 +126,7 @@ class Profile extends Page
 
     public function save(): void
     {
+        /** @var \App\Models\User $user */
 
         $user = Auth::user();
 

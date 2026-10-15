@@ -15,7 +15,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'email', 'password', 'avatar'])]
+#[Fillable(['name', 'email', 'password', 'avatar', 'phone'])]
 #[Hidden(['password', 'remember_token'])]
 // 2. Tambahkan 'implements HasAvatar' pada deklarasi class
 class User extends Authenticatable implements HasAvatar
@@ -48,5 +48,10 @@ class User extends Authenticatable implements HasAvatar
 
         // Jika kosong, kembalikan null agar Filament menggunakan inisial nama secara default
         return null;
+    }
+
+     public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email'];
     }
 }

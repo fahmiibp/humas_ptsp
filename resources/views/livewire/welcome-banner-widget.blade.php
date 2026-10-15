@@ -30,7 +30,7 @@
             <div class="flex flex-wrap lg:flex-col xl:flex-row items-center gap-2.5 shrink-0">
                 <x-filament::button
                     tag="a"
-                    href="{{ url('admin/timelines') }}"
+                    href="{{ url('admin/timelines/create') }}"
                     icon="heroicon-m-calendar-days"
                     color="primary"
                     size="md"
@@ -50,7 +50,7 @@
 
                 <x-filament::button
                     tag="a"
-                    href="{{ url('admin/warta-table') }}"
+                    href="{{ url('admin/rencana-konten-medsos/create') }}"
                     icon="heroicon-m-share"
                     color="gray"
                     size="md"
