@@ -3,8 +3,9 @@
 namespace App\Filament\Resources\Wartas\Pages;
 
 use App\Filament\Resources\Wartas\WartaResource;
-use Filament\Actions\DeleteAction;
+use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditWarta extends EditRecord
 {
@@ -13,7 +14,19 @@ class EditWarta extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            Actions\DeleteAction::make(),
         ];
+    }
+
+    // Otomatis mengubah status dan mencatat reviewer saat form disimpan
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Jika koordinator mengisi catatan koreksi
+        if (!empty($data['catatan_koreksi'])) {
+            $data['status_naskah'] = 'Perlu Revisi'; // Status otomatis berubah
+            $data['reviewed_by']   = Auth::id();     // Mencatat siapa koordinator yang mengoreksi
+        }
+
+        return $data;
     }
 }

@@ -5,11 +5,13 @@ namespace App\Livewire;
 use App\Models\Arsip;
 use App\Models\Timeline;
 use App\Models\Warta;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Carbon\Carbon;
 use Filament\Widgets\Widget;
 
 class PerformanceMonitoringWidget extends Widget
 {
+    use HasWidgetShield;
     protected string $view = 'livewire.performance-monitoring-widget';
 
     protected int | string | array $columnSpan = 'full';
@@ -47,9 +49,9 @@ class PerformanceMonitoringWidget extends Widget
         $currentDay = $now->day;
         $remainingDays = $totalDaysInMonth - $currentDay;
 
-       
-        $completionPercentage = $agendaCount > 0 
-            ? min(round(($arsipCount / $agendaCount) * 100), 100) 
+
+        $completionPercentage = $agendaCount > 0
+            ? min(round(($arsipCount / $agendaCount) * 100), 100)
             : 100;
 
         return [

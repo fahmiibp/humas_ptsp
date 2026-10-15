@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
+use Illuminate\Database\Eloquent\Model;
 
 class ArsipResource extends Resource
 {
@@ -29,7 +30,7 @@ class ArsipResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Arsip Dokumentasi Liputan';
 
-    protected static ?string $recordTitleAttribute = 'nama_kegiatan';
+    // protected static ?string $recordTitleAttribute = 'nama_kegiatan';
 
 
     public static function form(Schema $schema): Schema
@@ -57,6 +58,16 @@ class ArsipResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'notes'];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return $record->title ;
     }
 
     public static function getPages(): array

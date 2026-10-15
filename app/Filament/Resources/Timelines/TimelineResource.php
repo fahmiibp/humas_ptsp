@@ -25,7 +25,7 @@ class TimelineResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
-    protected static ?string $recordTitleAttribute = 'Timeline';
+    // protected static ?string $recordTitleAttribute = 'Timeline';
 
     protected static ?string $navigationLabel = 'Agenda Liputan';
 
