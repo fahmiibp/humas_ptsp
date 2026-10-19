@@ -30,9 +30,7 @@ class UserForm
                 TextInput::make('email')
                     ->label('Alamat Email')
                     ->email()
-                    ->required(),
-                DateTimePicker::make('email_verified_at')
-                    ->label('Waktu Verifikasi Email'),
+                    ->required(),                
                 TextInput::make('password')
                     ->label('Kata Sandi')
                     ->password()

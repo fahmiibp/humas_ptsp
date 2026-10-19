@@ -27,6 +27,7 @@ class ListWartas extends ListRecords
                 ->url($this->getResource()::getUrl('create')),
         ];
     }
+    
 
     public function getTabs(): array
     {

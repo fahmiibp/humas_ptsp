@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Wartas;
 
+
 use App\Filament\Resources\Wartas\Pages\CreateWarta;
 use App\Filament\Resources\Wartas\Pages\EditWarta;
 use App\Filament\Resources\Wartas\Pages\ListWartas;
+use App\Filament\Resources\Wartas\Pages\ViewWarta;
 use App\Filament\Resources\Wartas\Schemas\WartaForm;
+use App\Filament\Resources\Wartas\Schemas\WartaInfolist;
 use App\Filament\Resources\Wartas\Tables\WartasTable;
 use App\Models\Warta;
 use BackedEnum;
@@ -36,6 +39,12 @@ class WartaResource extends Resource
         return WartasTable::configure($table);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return WartaInfolist::configure($schema);
+    }
+
+
     public static function getRelations(): array
     {
         return [
@@ -53,6 +62,7 @@ class WartaResource extends Resource
         return [
             'index' => ListWartas::route('/'),
             'create' => CreateWarta::route('/create'),
+            'view' => ViewWarta::route('/{record}'),
             'edit' => EditWarta::route('/{record}/edit'),
         ];
     }

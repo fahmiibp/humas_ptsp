@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Wartas\Tables;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
@@ -105,7 +106,7 @@ class WartasTable
                     ->extraAttributes([
                         'class' => 'gap-4 items-start',
                     ]),
-            ])
+            ])->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -161,6 +162,8 @@ class WartasTable
                 EditAction::make()
                     ->label(fn(Model $record) => in_array($record->status_naskah, ['Perlu Review Koordinator', 'Disetujui']) ? 'Review' : 'Edit')
                     ->color('warning'),
+
+                ViewAction::make()
             ])
             ->bulkActions([
                 BulkActionGroup::make([
