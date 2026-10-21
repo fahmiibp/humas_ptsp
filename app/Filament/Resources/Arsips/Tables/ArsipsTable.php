@@ -26,30 +26,31 @@ class ArsipsTable
             ])
             ->columns([
                 Stack::make([
+                    
                     ImageColumn::make('sample_photos')
+                        ->label('Foto Dokumentasi')
+                        ->getStateUsing(function ($record) {
+                            $photos = $record->sample_photos;
+
+                            if (is_string($photos)) {
+                                $photos = json_decode($photos, true);
+                            }
+
+                            if (! is_array($photos) || empty($photos)) {
+                                return null;
+                            }
+
+                            return array_values($photos)[0] ?? null;
+                        })
                         ->disk('public')
                         ->height(340)
                         ->extraAttributes([
-                            'class' => '
-                            rounded-3xl
-                            overflow-hidden
-                            shadow-2xl
-                            ring-1
-                            ring-white/10
-                        '
+                            'class' => 'rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10',
                         ])
                         ->extraImgAttributes([
-                            'class' => '
-                            object-cover
-                            w-full
-                            h-[340px]
-                            brightness-90
-                            hover:brightness-110
-                            hover:scale-110
-                            transition-all
-                            duration-700
-                        '
+                            'class' => 'object-cover w-full h-[340px] brightness-90 hover:brightness-110 hover:scale-110 transition-all duration-700',
                         ]),
+
                     Stack::make([
                         TextColumn::make('title')
                             ->icon(Heroicon::Photo)
