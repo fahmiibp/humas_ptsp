@@ -12,6 +12,7 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 
 
 class ArsipsTable
@@ -136,22 +137,47 @@ class ArsipsTable
             ])
             ->filters([])
 
+            
             ->recordActions([
                 Action::make('buka_drive')
                     ->label('Drive')
                     ->icon(Heroicon::OutlinedCloudArrowUp)
                     ->color('success')
                     ->button()
-                    ->url(fn($record) => $record->drive_url)
+                    ->url(fn ($record) => $record->drive_url)
                     ->openUrlInNewTab()
-                    ->visible(fn($record) => filled($record->drive_url)),
+                    ->visible(fn ($record) => filled($record->drive_url)),
+
+                
+                Action::make('copy_drive_link')
+                    ->label('Copy Link')
+                    ->icon(Heroicon::OutlinedClipboardDocument)
+                    ->tooltip('Salin link Google Drive')
+                    ->color('gray')
+                    ->button()
+                    ->extraAttributes([
+                        'x-on:click' => '$event.preventDefault()',
+                    ])
+                    ->action(function ($record): void {
+                        Notification::make()
+                            ->title('Link berhasil disalin!')
+                            ->body('Link Google Drive siap digunakan.')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn ($record) => filled($record->drive_url)),
+
+
                 ViewAction::make()
                     ->button()
                     ->color('info'),
+
                 EditAction::make()
                     ->button()
                     ->color('warning'),
             ])
+
+
             ->emptyStateHeading('Belum Ada Arsip Dokumentasi Liputan')
             ->emptyStateDescription('Slahkan tambahkan arsip dokumentasi liputan baru')
             

@@ -17,6 +17,7 @@ class TimelineCustomCalendar extends Widget
     protected int | string | array $columnSpan = 'full';
 
     public int $month;
+
     public int $year;
 
     public bool $showDetailModal = false;
@@ -46,6 +47,10 @@ class TimelineCustomCalendar extends Widget
             'end_date' => $timeline->end_date,
             'location' => $timeline->location,
             'status' => $status ?? 'Belum Mulai',
+            'edit_url' => route(
+                'filament.admin.resources.timelines.edit',
+                ['record' => $timeline->id]
+            ),
         ];
 
         $this->showDetailModal = true;

@@ -15,6 +15,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Filament\Forms\Components\Hidden;
 
 class WartaForm
 {
@@ -128,21 +129,23 @@ class WartaForm
                             ->searchable()
                             ->preload()
                             ->native(false)
-                            ->placeholder('Pilih agenda terkait')
-                            ->required(),
+                            ->placeholder('Pilih agenda terkait'),
 
-                        Select::make('users_id')
-                            ->label('Penanggung Jawab')
-                            ->options(
-                                User::query()
-                                    ->orderBy('name')
-                                    ->pluck('name', 'id')
-                            )
-                            ->searchable()
-                            ->preload()
-                            ->native(false)
-                            ->placeholder('Pilih penanggung jawab')
-                            ->required(),
+                        // Select::make('users_id')
+                        //     ->label('Author')
+                        //     ->options(
+                        //         User::query()
+                        //             ->orderBy('name')
+                        //             ->pluck('name', 'id')
+                        //     )
+                        //     ->searchable()
+                        //     ->preload()
+                        //     ->native(false)
+                        //     ->placeholder('Pilih penanggung jawab')
+                        //     ->required(),
+
+                            Hidden::make('users_id')
+                            ->default(auth()->id())
                     ])
                     ->columns(2)
                     ->columnSpanFull(),

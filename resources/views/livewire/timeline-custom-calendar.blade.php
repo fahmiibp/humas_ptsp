@@ -1,4 +1,3 @@
-
 <x-filament-widgets::widget>
     <x-filament::section>
         {{-- Header Navigation --}}
@@ -237,7 +236,25 @@
                     </div>
 
                     {{-- Footer Modal --}}
-                    <div class="mt-6 flex justify-end">
+
+                    <div class="mt-6 flex flex-wrap justify-end gap-2">
+
+                        @if (!empty($selectedEvent['edit_url']))
+
+                            <x-filament::button
+
+                                tag="a"
+
+                                :href="$selectedEvent['edit_url']"
+
+                                icon="heroicon-m-pencil-square">
+
+                                Edit Agenda Liputan
+
+                            </x-filament::button>
+
+                        @endif
+
                         <x-filament::button
                             type="button"
                             color="gray"
@@ -247,6 +264,8 @@
                     </div>
                 </div>
             </div>
-        @endif
+
+    @endif
+
     </x-filament::section>
 </x-filament-widgets::widget>
