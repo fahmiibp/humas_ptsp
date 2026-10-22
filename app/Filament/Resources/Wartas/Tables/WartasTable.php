@@ -3,16 +3,18 @@
 namespace App\Filament\Resources\Wartas\Tables;
 
 use Filament\Actions\Action;
-use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,6 +38,7 @@ class WartasTable
                         'style' => 'width: 100% !important; height: 220px !important; display: block;',
                     ])
                     ->defaultImageUrl(url('/images/placeholder-news.png')),
+
                 Split::make([
                     Stack::make([
                         TextColumn::make('judul_siaran_pers')
@@ -56,7 +59,7 @@ class WartasTable
                             TextColumn::make('status_naskah')
                                 ->label('Status')
                                 ->badge()
-                                ->color(fn(?string $state): string => match ($state) {
+                                ->color(fn (?string $state): string => match ($state) {
                                     'Draft Penulis' => 'gray',
                                     'Perlu Review Koordinator' => 'warning',
                                     'Perlu Revisi' => 'danger',
@@ -76,8 +79,7 @@ class WartasTable
                         TextColumn::make('author.name')
                             ->label('Penanggung Jawab')
                             ->formatStateUsing(
-                                fn($state, $record) =>
-                                $record->author?->name ?? '-'
+                                fn ($state, $record) => $record->author?->name ?? '-'
                             )
                             ->icon('heroicon-m-user')
                             ->color('gray')
@@ -86,8 +88,7 @@ class WartasTable
                         TextColumn::make('timeline.event_name')
                             ->label('Agenda')
                             ->formatStateUsing(
-                                fn($state, $record) =>
-                                $record->timeline?->event_name ?? '-'
+                                fn ($state, $record) => $record->timeline?->event_name ?? '-'
                             )
                             ->icon('heroicon-m-calendar-days')
                             ->color('gray')
@@ -106,68 +107,159 @@ class WartasTable
                     ->extraAttributes([
                         'class' => 'gap-4 items-start',
                     ]),
-            ])->defaultSort('created_at', 'desc')
+            ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                Filter::make('rentang_tanggal')
+                    ->label('Rentang Jadwal Tayang')
+                    ->schema([
+                        DatePicker::make('dari_tanggal')
+                            ->label('Dari Tanggal')
+                            ->placeholder('Pilih tanggal awal')
+                            ->native(false)
+                            ->displayFormat('d/m/Y'),
+
+                        DatePicker::make('sampai_tanggal')
+                            ->label('Sampai Tanggal')
+                            ->placeholder('Pilih tanggal akhir')
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->afterOrEqual('dari_tanggal'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $dariTanggal = $data['dari_tanggal'] ?? null;
+                        $sampaiTanggal = $data['sampai_tanggal'] ?? null;
+
+                        return $query
+                            ->when(
+                                $dariTanggal,
+                                fn (Builder $query) => $query->whereDate(
+                                    'jadwal_tayang',
+                                    '>=',
+                                    $dariTanggal
+                                )
+                            )
+                            ->when(
+                                $sampaiTanggal,
+                                fn (Builder $query) => $query->whereDate(
+                                    'jadwal_tayang',
+                                    '<=',
+                                    $sampaiTanggal
+                                )
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if (! empty($data['dari_tanggal'])) {
+                            $indicators[] = 'Dari: ' . $data['dari_tanggal'];
+                        }
+
+                        if (! empty($data['sampai_tanggal'])) {
+                            $indicators[] = 'Sampai: ' . $data['sampai_tanggal'];
+                        }
+
+                        return $indicators;
+                    }),
             ])
             ->actions([
-                // 1. Tombol Kirim / Kirim Ulang (Hanya untuk Penulis saat Draft atau Perlu Revisi)
+                // Kirim naskah ke koordinator
                 Action::make('kirim_review')
-                    ->label(fn(Model $record) => $record->status_naskah === 'Perlu Revisi' ? 'Kirim Ulang' : 'Kirim ke Koordinator')
+                    ->label(
+                        fn (Model $record) => $record->status_naskah === 'Perlu Revisi'
+                            ? 'Kirim Ulang'
+                            : 'Kirim ke Koordinator'
+                    )
                     ->icon('heroicon-o-paper-airplane')
                     ->color('info')
                     ->requiresConfirmation()
                     ->modalHeading('Kirim Naskah untuk Direview?')
-                    ->modalDescription('Naskah akan dikirim ke koordinator untuk ditinjau kembali.')
-                    ->visible(fn(Model $record) => in_array($record->status_naskah, ['Draft Penulis', 'Perlu Revisi']))
-                    ->action(function (Model $record) {
-                        $record->update(['status_naskah' => 'Perlu Review Koordinator']);
-                        Notification::make()->title('Naskah berhasil dikirim ke koordinator')->success()->send();
+                    ->modalDescription(
+                        'Naskah akan dikirim ke koordinator untuk ditinjau kembali.'
+                    )
+                    ->visible(
+                        fn (Model $record) => in_array(
+                            $record->status_naskah,
+                            ['Draft Penulis', 'Perlu Revisi'],
+                            true
+                        )
+                    )
+                    ->action(function (Model $record): void {
+                        $record->update([
+                            'status_naskah' => 'Perlu Review Koordinator',
+                        ]);
+
+                        Notification::make()
+                            ->title('Naskah berhasil dikirim ke koordinator')
+                            ->success()
+                            ->send();
                     }),
 
-                // 2. Tombol Setujui (Hanya muncul saat Perlu Review Koordinator)
+                // Setujui naskah
                 Action::make('setujui_warta')
                     ->label('Setujui')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
                     ->modalHeading('Setujui Warta Ini?')
-                    ->modalDescription('Warta akan disetujui dan dilanjutkan ke tahap publikasi.')
-                    ->visible(fn(Model $record) => $record->status_naskah === 'Perlu Review Koordinator')
-                    ->action(function (Model $record) {
+                    ->modalDescription(
+                        'Warta akan disetujui dan dilanjutkan ke tahap publikasi.'
+                    )
+                    ->visible(
+                        fn (Model $record) => $record->status_naskah === 'Perlu Review Koordinator'
+                    )
+                    ->action(function (Model $record): void {
                         $record->update([
                             'status_naskah' => 'Disetujui',
-                            'reviewed_by'   => Auth::id(),
+                            'reviewed_by' => Auth::id(),
                         ]);
-                        Notification::make()->title('Warta Berhasil Disetujui')->success()->send();
+
+                        Notification::make()
+                            ->title('Warta Berhasil Disetujui')
+                            ->success()
+                            ->send();
                     }),
 
-                // 3. Tombol Tayangkan (Hanya muncul saat status Disetujui)
+                // Tayangkan naskah
                 Action::make('tayangkan_warta')
                     ->label('Tayangkan')
                     ->icon('heroicon-o-globe-alt')
                     ->color('info')
                     ->requiresConfirmation()
                     ->modalHeading('Tayangkan Warta Ini?')
-                    ->modalDescription('Warta akan dipublikasikan secara resmi.')
-                    ->visible(fn(Model $record) => $record->status_naskah === 'Disetujui')
-                    ->action(function (Model $record) {
+                    ->modalDescription(
+                        'Warta akan dipublikasikan secara resmi.'
+                    )
+                    ->visible(
+                        fn (Model $record) => $record->status_naskah === 'Disetujui'
+                    )
+                    ->action(function (Model $record): void {
                         $record->update([
                             'status_naskah' => 'Sudah Tayang',
                         ]);
-                        Notification::make()->title('Warta Berhasil Ditayangkan')->success()->send();
+
+                        Notification::make()
+                            ->title('Warta Berhasil Ditayangkan')
+                            ->success()
+                            ->send();
                     }),
 
-                // 4. Tombol Review / Edit (Muncul di semua status sesuai kebutuhan)
+                // Edit atau review
                 EditAction::make()
-                    ->label(fn(Model $record) => in_array($record->status_naskah, ['Perlu Review Koordinator', 'Disetujui']) ? 'Review' : 'Edit')
+                    ->label(
+                        fn (Model $record) => in_array(
+                            $record->status_naskah,
+                            ['Perlu Review Koordinator', 'Disetujui'],
+                            true
+                        ) ? 'Review' : 'Edit'
+                    )
                     ->color('warning'),
 
-                ViewAction::make()
+                ViewAction::make(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    // DeleteBulkAction::make(),
+                    // Tambahkan bulk action jika diperlukan.
                 ]),
             ]);
     }

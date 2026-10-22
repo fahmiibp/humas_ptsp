@@ -136,3 +136,14 @@
     justify-content: center;
     box-sizing: border-box;
 }
+
+.fi-ta-actions-cell .fi-ac-action-group > .fi-btn {
+    white-space: nowrap;
+    min-width: max-content;
+}
+
+.user-actions-menu {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}

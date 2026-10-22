@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\RencanaKontenMedsos\Schemas;
 
+use App\Models\Timeline;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -16,123 +17,126 @@ class RencanaKontenMedsosForm
 {
     public static function configure(Schema $schema): Schema
     {
-        return $schema
-            ->components([
+        return $schema->components([
+            Section::make('Materi dan Naskah Konten')
+                ->description('Isi informasi utama dan materi visual untuk konten yang direncanakan.')
+                ->columns(2)
+                ->schema([
+                    TextInput::make('judul')
+                        ->label('Tema / Judul Konten')
+                        ->placeholder('Contoh: Hari Kesaktian Pancasila')
+                        ->required()
+                        ->maxLength(255)
+                        ->columnSpanFull(),
 
-                /*
-                |--------------------------------------------------------------------------
-                | Materi dan Naskah Konten
-                |--------------------------------------------------------------------------
-                */
+                    RichEditor::make('caption')
+                        ->label('Caption')
+                        ->placeholder('Tulis caption atau deskripsi konten di sini...')
+                        ->columnSpanFull(),
 
-                Section::make('Materi dan Naskah Konten')
-                    ->description(
-                        'Unggah materi visual dan susun takarir (caption) penayangan.'
-                    )
-                    ->schema([
+                    FileUpload::make('gambar')
+                        ->label('Gambar Konten')
+                        ->helperText('Unggah gambar untuk materi konten. Format gambar saja.')
+                        ->image()
+                        ->disk('public')
+                        ->directory('gambar-konten')
+                        ->required()
+                        ->columnSpanFull(),
+                ]),
 
-                        TextInput::make('judul')
-                            ->label('Tema / Judul')
-                            ->placeholder('Contoh: Hari Kesaktian Pancasila')
-                            ->required()
-                            ->maxLength(255),
+            Section::make('Kanal dan Jadwal Publikasi')
+                ->description('Tentukan platform, format, dan waktu publikasi.')
+                ->columns(2)
+                ->schema([
+                    Select::make('platform')
+                        ->label('Platform')
+                        ->placeholder('Pilih platform')
+                        ->options([
+                            'youtube' => 'YouTube',
+                            'instagram' => 'Instagram',
+                            'tiktok' => 'TikTok',
+                            'facebook' => 'Facebook',
+                            'x_twitter' => 'X / Twitter',
+                        ])
+                        ->searchable()
+                        ->required(),
 
-                        RichEditor::make('caption')
-                            ->label('Caption')
-                            ->placeholder('Berikan caption atau deskripsi di sini...'),
+                    Select::make('format')
+                        ->label('Format Konten')
+                        ->placeholder('Pilih format konten')
+                        ->options([
+                            'video_upload' => 'Video / Upload',
+                            'reels_video_pendek' => 'Reels / Video Pendek',
+                            'instagram_story' => 'Instagram Story',
+                            'carousel_multi_slide' => 'Carousel / Multi-Slide',
+                            'single_post_feed' => 'Single Post / Feed',
+                        ])
+                        ->searchable()
+                        ->required(),
 
-                        FileUpload::make('gambar')
-                            ->label('Gambar Konten')
-                            ->helperText('Pilih atau tarik file gambar ke sini')
-                            ->disk('public')
-                            ->directory('Gambar Konten')
-                            ->image()
-                            ->required(),
-                    ]),
+                    DatePicker::make('tanggal')
+                        ->label('Tanggal Tayang')
+                        ->placeholder('Pilih tanggal publikasi')
+                        ->native(false)
+                        ->required(),
 
-                /*
-                |--------------------------------------------------------------------------
-                | Kanal dan Format
-                |--------------------------------------------------------------------------
-                */
+                    TimePicker::make('jam_tayang')
+                        ->label('Jam Tayang')
+                        ->placeholder('Pilih jam publikasi')
+                        ->seconds(false)
+                        ->required(),
 
-                Section::make('Kanal dan Format')
-                    ->schema([
-
-                        Select::make('platform')
-                            ->label('Platform')
-                            ->placeholder('Pilih Platform')
-                            ->options([
-                                'youtube' => 'YouTube',
-                                'instagram' => 'Instagram',
-                                'tiktok' => 'TikTok',
-                                'facebook' => 'Facebook',
-                                'x_twitter' => 'X / Twitter',
+                    Select::make('agenda_id')
+                        ->label('Agenda Liputan (Opsional)')
+                        ->placeholder('Pilih agenda liputan jika ada')
+                        ->options(fn (): array => Timeline::query()
+                            ->orderByDesc('start_date')
+                            ->get()
+                            ->mapWithKeys(fn (Timeline $timeline): array => [
+                                $timeline->getKey() => sprintf(
+                                    '%s — %s',
+                                    $timeline->event_name,
+                                    $timeline->start_date
+                                        ? \Carbon\Carbon::parse($timeline->start_date)->format('d M Y H:i')
+                                        : 'Tanggal belum ditentukan'
+                                ),
                             ])
-                            ->searchable()
-                            ->required(),
+                            ->all())
+                        ->searchable()
+                        ->preload()
+                        ->nullable()
+                        ->helperText('Opsional. Pilih jika konten ini berkaitan dengan agenda liputan yang sudah terdaftar.')
+                        ->columnSpanFull(),
 
-                        DatePicker::make('tanggal')
-                            ->label('Tanggal Tayang')
-                            ->native(false)
-                            ->required(),
+                    TextInput::make('link')
+                        ->label('Link Konten')
+                        ->placeholder('https://...')
+                        ->url()
+                        ->maxLength(255)
+                        ->helperText('Opsional. Isi jika konten sudah memiliki tautan publikasi.')
+                        ->columnSpanFull(),
+                ]),
 
-                        Select::make('format')
-                            ->label('Format Konten')
-                            ->placeholder('Pilih Format Konten')
-                            ->options([
-                                'video_upload' => 'Video / Upload',
-                                'reels_video_pendek' => 'Reels / Video Pendek',
-                                'instagram_story' => 'Instagram Story',
-                                'carousel_multi_slide' => 'Carousel / Multi-Slide',
-                                'single_post_feed' => 'Single Post / Feed',
-                            ])
-                            ->searchable()
-                            ->required(),
+            Section::make('Status dan Publikasi')
+                ->description('Atur status rencana konten dan hashtag.')
+                ->columns(2)
+                ->schema([
+                    Select::make('status')
+                        ->label('Status Publikasi')
+                        ->options([
+                            'draft' => 'Draft Ide',
+                            'review' => 'Review',
+                            'published' => 'Sudah Tayang',
+                        ])
+                        ->default('draft')
+                        ->required(),
 
-                        TextInput::make('link')
-                            ->label('Link Konten')
-                            ->placeholder('https://...')
-                            ->url()
-                            ->maxLength(255),
-
-                        TextInput::make('agenda_id')
-                            ->label('Agenda')
-                            ->placeholder('Masukkan agenda')
-                            ->required(),
-
-                        TimePicker::make('jam_tayang')
-                            ->label('Jam Tayang')
-                            ->seconds(false)
-                            ->required(),
-
-                    ]),
-
-                /*
-                |--------------------------------------------------------------------------
-                | Status dan Publikasi
-                |--------------------------------------------------------------------------
-                */
-
-                Section::make('Status dan Publikasi')
-                    ->schema([
-
-                        Select::make('status')
-                            ->label('Status Publikasi')
-                            ->options([
-                                'draft' => 'Draft Ide',
-                                'review' => 'Review',
-                                'published' => 'Sudah Tayang',
-                            ])
-                            ->default('draft')
-                            ->required(),
-
-                        TagsInput::make('hastag')
-                            ->label('Hashtag')
-                            ->placeholder('#dpmptsp'),
-
-                    ]),
-
-            ]);
+                    TagsInput::make('hastag')
+                        ->label('Hashtag')
+                        ->placeholder('Tambahkan hashtag, lalu tekan Enter')
+                        ->helperText('Opsional. Tambahkan hashtag tanpa tanda koma.')
+                        ->columnSpanFull(),
+                ]),
+        ]);
     }
 }
