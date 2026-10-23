@@ -17,31 +17,26 @@ class EditWarta extends EditRecord
 
     protected function getSaveFormAction(): \Filament\Actions\Action
     {
-        return parent::getSaveFormAction()
-            ->label('Simpan Perubahan');
+        return parent::getSaveFormAction()->label('Simpan Perubahan');
     }
 
     protected function getCancelFormAction(): \Filament\Actions\Action
     {
-        return parent::getCancelFormAction()
-            ->label('Batal');
+        return parent::getCancelFormAction()->label('Batal');
     }
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->visible(fn (): bool => Auth::user()?->hasAnyRole(['Admin', 'admin', 'super_admin', 'Super Admin']) ?? false),
         ];
     }
 
-    // Otomatis mengubah status dan mencatat reviewer saat form disimpan
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Jika koordinator mengisi catatan koreksi
-        if (!empty($data['catatan_koreksi'])) {
-            $data['status_naskah'] = 'Perlu Revisi'; // Status otomatis berubah
-            $data['reviewed_by']   = Auth::id();     // Mencatat siapa koordinator yang mengoreksi
-        }
+        // Status, pemilik, dan keputusan verifikasi tidak boleh diubah lewat form edit.
+        unset($data['status_naskah'], $data['users_id'], $data['reviewed_by']);
 
         return $data;
     }

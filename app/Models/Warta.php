@@ -18,6 +18,7 @@ class Warta extends Model
         'catatan_koreksi',
         'timeline_id',
         'users_id',
+        'reviewed_by',
         'dokumentasi_utama'
     ];
 
@@ -28,6 +29,11 @@ class Warta extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'users_id');
+    }
+
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     public function timeline()

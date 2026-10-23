@@ -7,6 +7,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Split;
@@ -57,7 +58,7 @@ class WartasTable
 
                         Split::make([
                             TextColumn::make('status_naskah')
-                                ->label('Status')
+                                ->label('Status Verifikasi')
                                 ->badge()
                                 ->color(fn (?string $state): string => match ($state) {
                                     'Draft Penulis' => 'gray',
@@ -162,23 +163,25 @@ class WartasTable
                         return $indicators;
                     }),
             ])
-            ->actions([
-                // Kirim naskah ke koordinator
+            ->recordActions([
+                // Penulis mengirim naskah atau mengirim ulang setelah revisi.
                 Action::make('kirim_review')
-                    ->label(
-                        fn (Model $record) => $record->status_naskah === 'Perlu Revisi'
+                    ->label(fn (Model $record): string =>
+                        $record->status_naskah === 'Perlu Revisi'
                             ? 'Kirim Ulang'
-                            : 'Kirim ke Koordinator'
+                            : 'Kirim ke Verifikator'
                     )
                     ->icon('heroicon-o-paper-airplane')
                     ->color('info')
                     ->requiresConfirmation()
-                    ->modalHeading('Kirim Naskah untuk Direview?')
-                    ->modalDescription(
-                        'Naskah akan dikirim ke koordinator untuk ditinjau kembali.'
-                    )
-                    ->visible(
-                        fn (Model $record) => in_array(
+                    ->modalHeading('Kirim naskah untuk verifikasi?')
+                    ->modalDescription('Naskah akan masuk ke antrean Verifikator.')
+                    ->visible(fn (Model $record): bool =>
+                        (
+                            Auth::user()?->hasAnyRole(['Penulis', 'super_admin']) ?? false
+                        )
+                        && (int) $record->users_id === (int) Auth::id()
+                        && in_array(
                             $record->status_naskah,
                             ['Draft Penulis', 'Perlu Revisi'],
                             true
@@ -187,75 +190,82 @@ class WartasTable
                     ->action(function (Model $record): void {
                         $record->update([
                             'status_naskah' => 'Perlu Review Koordinator',
+                            'catatan_koreksi' => null,
                         ]);
 
                         Notification::make()
-                            ->title('Naskah berhasil dikirim ke koordinator')
+                            ->title('Warta dikirim untuk verifikasi')
                             ->success()
                             ->send();
                     }),
-
-                // Setujui naskah
+                // Verifikator menyetujui naskah.
                 Action::make('setujui_warta')
                     ->label('Setujui')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading('Setujui Warta Ini?')
-                    ->modalDescription(
-                        'Warta akan disetujui dan dilanjutkan ke tahap publikasi.'
-                    )
-                    ->visible(
-                        fn (Model $record) => $record->status_naskah === 'Perlu Review Koordinator'
-                    )
+                    ->modalHeading('Setujui Warta ini?')
+                    ->visible(fn (Model $record): bool => (Auth::user()?->hasAnyRole(['Verifikator', 'Koordinator']) ?? false)
+                        && $record->status_naskah === 'Perlu Review Koordinator')
                     ->action(function (Model $record): void {
                         $record->update([
                             'status_naskah' => 'Disetujui',
                             'reviewed_by' => Auth::id(),
+                            'catatan_koreksi' => null,
                         ]);
 
-                        Notification::make()
-                            ->title('Warta Berhasil Disetujui')
-                            ->success()
-                            ->send();
+                        Notification::make()->title('Warta disetujui')->success()->send();
                     }),
 
-                // Tayangkan naskah
+                // Verifikator menolak dengan catatan wajib.
+                Action::make('tolak_warta')
+                    ->label('Tolak / Minta Revisi')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('danger')
+                    ->form([
+                        Textarea::make('catatan_koreksi')
+                            ->label('Catatan revisi untuk Penulis')
+                            ->placeholder('Jelaskan bagian yang perlu diperbaiki...')
+                            ->required()
+                            ->minLength(5)
+                            ->rows(4),
+                    ])
+                    ->modalHeading('Kembalikan Warta untuk revisi')
+                    ->visible(fn (Model $record): bool => (Auth::user()?->hasAnyRole(['Verifikator', 'Koordinator']) ?? false)
+                        && $record->status_naskah === 'Perlu Review Koordinator')
+                    ->action(function (Model $record, array $data): void {
+                        $record->update([
+                            'status_naskah' => 'Perlu Revisi',
+                            'catatan_koreksi' => $data['catatan_koreksi'],
+                            'reviewed_by' => Auth::id(),
+                        ]);
+
+                        Notification::make()->title('Warta dikembalikan kepada Penulis')->warning()->send();
+                    }),
+
+                // Hanya admin publikasi dapat menerbitkan warta yang disetujui.
                 Action::make('tayangkan_warta')
-                    ->label('Tayangkan')
+                    ->label('Publikasikan')
                     ->icon('heroicon-o-globe-alt')
                     ->color('info')
                     ->requiresConfirmation()
-                    ->modalHeading('Tayangkan Warta Ini?')
-                    ->modalDescription(
-                        'Warta akan dipublikasikan secara resmi.'
-                    )
-                    ->visible(
-                        fn (Model $record) => $record->status_naskah === 'Disetujui'
-                    )
+                    ->modalHeading('Publikasikan Warta ini?')
+                    ->modalDescription('Warta hanya dapat dipublikasikan setelah disetujui Verifikator.')
+                    ->visible(fn (Model $record): bool => (Auth::user()?->hasAnyRole(['Admin', 'admin', 'super_admin', 'Super Admin', 'Admin Publikasi']) ?? false)
+                        && $record->status_naskah === 'Disetujui')
                     ->action(function (Model $record): void {
-                        $record->update([
-                            'status_naskah' => 'Sudah Tayang',
-                        ]);
+                        $record->update(['status_naskah' => 'Sudah Tayang']);
 
-                        Notification::make()
-                            ->title('Warta Berhasil Ditayangkan')
-                            ->success()
-                            ->send();
+                        Notification::make()->title('Warta berhasil dipublikasikan')->success()->send();
                     }),
 
-                // Edit atau review
                 EditAction::make()
-                    ->label(
-                        fn (Model $record) => in_array(
-                            $record->status_naskah,
-                            ['Perlu Review Koordinator', 'Disetujui'],
-                            true
-                        ) ? 'Review' : 'Edit'
-                    )
-                    ->color('warning'),
+                    ->label('Edit')
+                    ->visible(fn (Model $record): bool => (Auth::user()?->hasRole('Penulis') ?? false)
+                        && (int) $record->users_id === (int) Auth::id()
+                        && in_array($record->status_naskah, ['Draft Penulis', 'Perlu Revisi'], true)),
 
-                ViewAction::make(),
+                ViewAction::make()->label('Lihat'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([

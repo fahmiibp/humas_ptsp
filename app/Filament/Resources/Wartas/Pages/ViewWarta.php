@@ -3,13 +3,12 @@
 namespace App\Filament\Resources\Wartas\Pages;
 
 use App\Filament\Resources\Wartas\WartaResource;
-use App\Models\Warta;
 use Filament\Actions\Action;
-use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class ViewWarta extends ViewRecord
@@ -19,33 +18,39 @@ class ViewWarta extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            // EditAction::make(),
-
             Action::make('verifikasi')
                 ->label('Verifikasi Naskah')
                 ->icon('heroicon-m-check')
                 ->color('success')
-                ->visible(
-                    fn(): bool =>
-                    Filament::auth()->user()?->hasRole('Verifikator') ?? false
-                )
+                ->visible(fn (): bool => (Auth::user()?->hasAnyRole(['Verifikator', 'Koordinator']) ?? false)
+                    && $this->getRecord()->status_naskah === 'Perlu Review Koordinator')
                 ->form([
                     Select::make('status_naskah')
-                        ->label('Status Naskah')
+                        ->label('Keputusan')
                         ->options([
-                            'Perlu Revisi' => 'Perlu Revisi',
-                            'Disetujui' => 'Disetujui',
+                            'Perlu Revisi' => 'Tolak / Minta Revisi',
+                            'Disetujui' => 'Setujui',
                         ])
-                        ->placeholder('Pilih status naskah')
                         ->native(false)
-                        ->required(),
-
+                        ->required()
+                        ->live(),
                     Textarea::make('catatan_koreksi')
-                        ->label('Catatan Verifikator')
+                        ->label('Catatan untuk Penulis')
+                        ->placeholder('Jelaskan bagian yang perlu diperbaiki jika ditolak...')
                         ->rows(4)
-                        ->required(),
+                        ->required(fn ($get): bool => $get('status_naskah') === 'Perlu Revisi'),
                 ])
+                ->action(function (Model $record, array $data): void {
+                    $status = $data['status_naskah'];
 
+                    $record->update([
+                        'status_naskah' => $status,
+                        'catatan_koreksi' => $status === 'Perlu Revisi'
+                            ? $data['catatan_koreksi']
+                            : null,
+                        'reviewed_by' => Auth::id(),
+                    ]);
+                }),
         ];
     }
 }

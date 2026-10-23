@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ListWartas extends ListRecords
 {
     protected static string $resource = WartaResource::class;
-    
+
     protected static ?string $title = 'Daftar Warta';
 
     protected static ?string $breadcrumb = 'Daftar';
@@ -27,45 +27,98 @@ class ListWartas extends ListRecords
                 ->url($this->getResource()::getUrl('create')),
         ];
     }
-    
 
     public function getTabs(): array
     {
         return [
             'Semua' => Tab::make()
-            ->badge(Warta::query()->where('status_naskah', 'Draft Penulis')->count())
+                ->badge(
+                    Warta::query()->count()
+                )
                 ->badgeColor('primary'),
+
             'Draft Penulis' => Tab::make()
-                ->badge(Warta::query()->where('status_naskah', 'Draft Penulis')->count())
+                ->badge(
+                    Warta::query()
+                        ->where('status_naskah', 'Draft Penulis')
+                        ->count()
+                )
                 ->badgeColor('gray')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status_naskah', 'Draft Penulis'))
+                ->modifyQueryUsing(
+                    fn (Builder $query): Builder => $query->where(
+                        'status_naskah',
+                        'Draft Penulis'
+                    )
+                )
                 ->icon('heroicon-m-pencil-square')
                 ->iconPosition(IconPosition::Before),
-            'Perlu Review Koordinator' => Tab::make()
-                ->badge(Warta::query()->where('status_naskah', 'Perlu Review Koordinator')->count())
+
+            'Menunggu Verifikasi' => Tab::make()
+                ->badge(
+                    Warta::query()
+                        ->where(
+                            'status_naskah',
+                            'Perlu Review Koordinator'
+                        )
+                        ->count()
+                )
                 ->badgeColor('warning')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status_naskah', 'Perlu Review Koordinator'))
+                ->modifyQueryUsing(
+                    fn (Builder $query): Builder => $query->where(
+                        'status_naskah',
+                        'Perlu Review Koordinator'
+                    )
+                )
                 ->icon('heroicon-m-exclamation-circle')
                 ->iconPosition(IconPosition::Before),
+
             'Perlu Revisi' => Tab::make()
-                ->badge(Warta::query()->where('status_naskah', 'Perlu Revisi')->count())
+                ->badge(
+                    Warta::query()
+                        ->where('status_naskah', 'Perlu Revisi')
+                        ->count()
+                )
                 ->badgeColor('danger')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status_naskah', 'Perlu Revisi'))
-                ->icon('heroicon-m-check-circle')
-                ->iconPosition(IconPosition::Before),
-            'Disetujui' => Tab::make()
-                ->badge(Warta::query()->where('status_naskah', 'Disetujui')->count())
-                ->badgeColor('info')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status_naskah', 'Disetujui'))
-                ->icon('heroicon-m-document-text')
-                ->iconPosition(IconPosition::Before),
-            'Sudah Tayang' => Tab::make()
-                ->badge(Warta::query()->where('status_naskah', 'Sudah Tayang')->count())
-                ->badgeColor('success')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status_naskah', 'Disetujui'))
-                ->icon('heroicon-m-document-text')
+                ->modifyQueryUsing(
+                    fn (Builder $query): Builder => $query->where(
+                        'status_naskah',
+                        'Perlu Revisi'
+                    )
+                )
+                ->icon('heroicon-m-arrow-path')
                 ->iconPosition(IconPosition::Before),
 
+            'Disetujui' => Tab::make()
+                ->badge(
+                    Warta::query()
+                        ->where('status_naskah', 'Disetujui')
+                        ->count()
+                )
+                ->badgeColor('info')
+                ->modifyQueryUsing(
+                    fn (Builder $query): Builder => $query->where(
+                        'status_naskah',
+                        'Disetujui'
+                    )
+                )
+                ->icon('heroicon-m-check-circle')
+                ->iconPosition(IconPosition::Before),
+
+            'Sudah Tayang' => Tab::make()
+                ->badge(
+                    Warta::query()
+                        ->where('status_naskah', 'Sudah Tayang')
+                        ->count()
+                )
+                ->badgeColor('success')
+                ->modifyQueryUsing(
+                    fn (Builder $query): Builder => $query->where(
+                        'status_naskah',
+                        'Sudah Tayang'
+                    )
+                )
+                ->icon('heroicon-m-document-text')
+                ->iconPosition(IconPosition::Before),
         ];
     }
 }

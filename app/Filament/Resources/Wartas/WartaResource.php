@@ -16,6 +16,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class WartaResource extends Resource
@@ -37,6 +39,61 @@ class WartaResource extends Resource
     public static function table(Table $table): Table
     {
         return WartasTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->hasAnyRole(['Admin', 'admin', 'super_admin', 'Super Admin', 'Admin Publikasi'])) {
+            return $query;
+        }
+
+        if ($user->hasAnyRole(['Verifikator', 'Koordinator'])) {
+            return $query->where('status_naskah', 'Perlu Review Koordinator');
+        }
+
+        if ($user->hasRole('Penulis')) {
+            return $query->where('users_id', $user->getKey());
+        }
+
+        return $query->whereRaw('1 = 0');
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()?->hasAnyRole([
+            'Penulis',
+            'Admin',
+            'admin',
+            'super_admin',
+            'Super Admin',
+            'Admin Publikasi',
+        ]) ?? false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $user = Auth::user();
+
+        return (bool) $user
+            && $user->hasRole('Penulis')
+            && (int) $record->users_id === (int) $user->getKey()
+            && in_array($record->status_naskah, ['Draft Penulis', 'Perlu Revisi'], true);
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $user = Auth::user();
+
+        return (bool) $user
+            && $user->hasAnyRole(['Admin', 'admin', 'super_admin', 'Super Admin'])
+            && $record->status_naskah !== 'Sudah Tayang';
     }
 
     public static function infolist(Schema $schema): Schema
