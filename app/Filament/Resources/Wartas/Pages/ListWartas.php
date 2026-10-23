@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ListWartas extends ListRecords
 {
     protected static string $resource = WartaResource::class;
-    
+
     protected static ?string $title = 'Daftar Warta';
 
     protected static ?string $breadcrumb = 'Daftar';
@@ -27,13 +27,13 @@ class ListWartas extends ListRecords
                 ->url($this->getResource()::getUrl('create')),
         ];
     }
-    
+
 
     public function getTabs(): array
     {
         return [
             'Semua' => Tab::make()
-            ->badge(Warta::query()->where('status_naskah', 'Draft Penulis')->count())
+                ->badge(Warta::query()->where('status_naskah', 'Draft Penulis')->count())
                 ->badgeColor('primary'),
             'Draft Penulis' => Tab::make()
                 ->badge(Warta::query()->where('status_naskah', 'Draft Penulis')->count())

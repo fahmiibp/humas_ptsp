@@ -30,12 +30,15 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->favicon(asset('image/logo.png'))
+            ->favicon(asset('image/ptsp.png'))
             ->brandName('PTSP')
+            ->brandLogo(asset('image/ptsp.png'))
+            ->brandLogoHeight('70px')
             ->id('admin')
             ->path('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
+            // ->registration()
             ->colors([
                 'primary' => Color::Emerald,
             ])
@@ -55,7 +58,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugin(
                 FilamentShieldPlugin::make()
                     ->navigationLabel('Permission')                  // string|Closure|null
-                    ->navigationIcon('heroicon-o-key')         // string|Closure|null  
+                    ->navigationIcon('heroicon-o-key')         // string|Closure|null
                     ->activeNavigationIcon('heroicon-s-key')   // string|Closure|null
                     ->navigationGroup('Setting')                  // string|Closure|null
                     ->navigationSort(10)

@@ -26,8 +26,8 @@ class ViewWarta extends ViewRecord
                 ->icon('heroicon-m-check')
                 ->color('success')
                 ->visible(
-                    fn(): bool =>
-                    Filament::auth()->user()?->hasRole('Verifikator') ?? false
+                    fn(): bool => (Filament::auth()->user()?->hasRole('verifikator') ?? false)
+                        && $this->record->status_naskah === 'Perlu Review Koordinator'
                 )
                 ->form([
                     Select::make('status_naskah')
@@ -43,8 +43,17 @@ class ViewWarta extends ViewRecord
                     Textarea::make('catatan_koreksi')
                         ->label('Catatan Verifikator')
                         ->rows(4)
-                        ->required(),
+                        ->required()
                 ])
+                ->action(function (array $data): void {
+                    $this->record->update([
+                        'status_naskah' => $data['status_naskah'],
+                        'catatan_koreksi' => $data['catatan_koreksi'],
+                    ]);
+                })
+                ->successNotificationTitle(
+                    'Naskah berhasil diverifikasi'
+                ),
 
         ];
     }

@@ -10,12 +10,16 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use STS\FilamentImpersonate\Actions\Impersonate;
+use Illuminate\Support\Facades\Auth as user;
 
 class UsersTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(
+                fn($query) => $query->where('id', '!=', user::id())
+            )
             ->columns([
                 ImageColumn::make('avatar')
                     ->label('Avatar')
@@ -28,7 +32,7 @@ class UsersTable
                     ->label('Alamat Email')
                     ->searchable(),
                 TextColumn::make('roles.name')
-                ->label('Peran'),
+                    ->label('Peran'),
                 TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()

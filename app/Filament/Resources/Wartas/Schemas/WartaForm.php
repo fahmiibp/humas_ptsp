@@ -2,19 +2,23 @@
 
 namespace App\Filament\Resources\Wartas\Schemas;
 
-use App\Models\Timeline;
 use App\Models\User;
 use App\Models\Warta;
+use App\Models\Timeline;
+use Illuminate\Support\Str;
+use Filament\Actions\Action;
+use Filament\Schemas\Schema;
+use App\Ai\Agents\PenulisBerita;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Notifications\Notification;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Schema;
-use Illuminate\Support\Str;
+use Filament\Schemas\Components\Utilities\Get;
 
 class WartaForm
 {
@@ -90,7 +94,75 @@ class WartaForm
                                 'undo',
                             ])
                             ->required()
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+
+                            ->hintAction(
+                                Action::make('generateNewsContent')
+                                    ->label('Buat dengan AI')
+                                    ->icon('heroicon-o-sparkles')
+                                    ->action(function (Get $get, Set $set) {
+                                        $judul = $get('judul_siaran_pers');
+                                        $lead = $get('lead_berita');
+
+                                        if (blank($judul) || blank($lead)) {
+                                            Notification::make()
+                                                ->title('Isi judul atau lead berita terlebih dahulu.')
+                                                ->warning()
+                                                ->send();
+
+                                            return;
+                                        }
+
+                                        $prompt = "Buat isi lengkap siaran pers berdasarkan data berikut:\n"
+                                            . "Judul berita: " . ($judul ?: '-') . "\n"
+                                            . "Lead berita: " . ($lead ?: '-') . "\n"
+                                            . "\nKetentuan penulisan:\n"
+                                            . "- Gunakan bahasa Indonesia formal dan baku.\n"
+                                            . "- Gunakan gaya jurnalistik untuk instansi pemerintah.\n"
+                                            . "- Susun isi berita secara runtut dan mudah dipahami.\n"
+                                            . "- Pertahankan fakta yang tersedia dalam bahan sumber.\n"
+                                            . "- Jangan mengarang nama, jabatan, tanggal, lokasi, angka, "
+                                            . "kutipan, pernyataan, atau fakta lain yang tidak diberikan.\n"
+                                            . "- Jangan menganggap informasi dalam judul atau lead "
+                                            . "sebagai dasar untuk menciptakan fakta tambahan.\n"
+                                            . "- Jika informasi tidak cukup untuk menyusun berita lengkap, "
+                                            . "hasilkan hanya uraian berdasarkan informasi yang tersedia.\n"
+                                            . "- Jangan mengulang judul sebagai isi berita.\n"
+                                            . "- Jawab hanya dengan isi berita, tanpa pengantar, "
+                                            . "markdown, atau tanda kutip.";
+
+                                        try {
+                                            $hasil = trim(
+                                                (string) PenulisBerita::make()->prompt($prompt)
+                                            );
+
+                                            if (blank($hasil)) {
+                                                Notification::make()
+                                                    ->title('AI tidak menghasilkan konten berita.')
+                                                    ->warning()
+                                                    ->send();
+
+                                                return;
+                                            }
+
+                                            $set('badan_berita', nl2br(e($hasil)));
+
+                                            Notification::make()
+                                                ->title('Konten berita berhasil dibuat.')
+                                                ->success()
+                                                ->send();
+                                        } catch (\Throwable $e) {
+                                            report($e);
+
+                                            Notification::make()
+                                                ->title('Gagal menghasilkan konten berita.')
+                                                ->body('Silakan coba lagi beberapa saat.')
+                                                ->danger()
+                                                ->send();
+                                        }
+                                    })
+                            )
+
                     ])
                     ->columnSpanFull(),
                 Section::make('Publikasi dan Penjadwalan')

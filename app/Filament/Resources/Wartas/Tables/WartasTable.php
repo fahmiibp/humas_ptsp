@@ -119,7 +119,7 @@ class WartasTable
                     ->requiresConfirmation()
                     ->modalHeading('Kirim Naskah untuk Direview?')
                     ->modalDescription('Naskah akan dikirim ke koordinator untuk ditinjau kembali.')
-                    ->visible(fn(Model $record) => in_array($record->status_naskah, ['Draft Penulis', 'Perlu Revisi']))
+                    ->visible(fn(Model $record) => in_array($record->status_naskah, ['Draft Penulis', 'Perlu Revisi']) && Auth::user()->hasRole('super_admin'))
                     ->action(function (Model $record) {
                         $record->update(['status_naskah' => 'Perlu Review Koordinator']);
                         Notification::make()->title('Naskah berhasil dikirim ke koordinator')->success()->send();
@@ -133,7 +133,7 @@ class WartasTable
                     ->requiresConfirmation()
                     ->modalHeading('Setujui Warta Ini?')
                     ->modalDescription('Warta akan disetujui dan dilanjutkan ke tahap publikasi.')
-                    ->visible(fn(Model $record) => $record->status_naskah === 'Perlu Review Koordinator')
+                    ->visible(fn(Model $record) => $record->status_naskah === 'Perlu Review Koordinator' && Auth::user()->hasRole('verifikator'))
                     ->action(function (Model $record) {
                         $record->update([
                             'status_naskah' => 'Disetujui',
@@ -150,7 +150,7 @@ class WartasTable
                     ->requiresConfirmation()
                     ->modalHeading('Tayangkan Warta Ini?')
                     ->modalDescription('Warta akan dipublikasikan secara resmi.')
-                    ->visible(fn(Model $record) => $record->status_naskah === 'Disetujui')
+                    ->visible(fn(Model $record) => $record->status_naskah === 'Disetujui' && Auth::user()->hasRole('super_admin'))
                     ->action(function (Model $record) {
                         $record->update([
                             'status_naskah' => 'Sudah Tayang',
