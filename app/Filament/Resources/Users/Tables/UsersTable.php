@@ -48,11 +48,11 @@ class UsersTable
             ])
             ->filters([])
             ->actions([
-                ViewAction::make()->iconButton(),
-                EditAction::make()->iconButton(),
                 Impersonate::make()->iconButton(),
+                ViewAction::make(),
+                EditAction::make(),
             ])
-            ->actionsColumnLabel('Aksi') // Memberikan header kolom 'Aksi'
+            // ->actionsColumnLabel('Aksi') // Memberikan header kolom 'Aksi'
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
