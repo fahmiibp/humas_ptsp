@@ -52,7 +52,6 @@ class UsersTable
                 ViewAction::make(),
                 EditAction::make(),
             ])
-            // ->actionsColumnLabel('Aksi') // Memberikan header kolom 'Aksi'
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

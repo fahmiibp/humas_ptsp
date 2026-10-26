@@ -12,6 +12,7 @@
         "inertiajs/inertia-laravel": "^3.5",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
+        "livewire/livewire": "^4.4",
         "stechstudio/filament-impersonate": "^5.6"
     },
     "require-dev": {

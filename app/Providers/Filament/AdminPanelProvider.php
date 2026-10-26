@@ -55,7 +55,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugin(
                 FilamentShieldPlugin::make()
                     ->navigationLabel('Permission')                  // string|Closure|null
-                    ->navigationIcon('heroicon-o-key')         // string|Closure|null  
+                    ->navigationIcon('heroicon-o-key')         // string|Closure|null
                     ->activeNavigationIcon('heroicon-s-key')   // string|Closure|null
                     ->navigationGroup('Setting')                  // string|Closure|null
                     ->navigationSort(10)
