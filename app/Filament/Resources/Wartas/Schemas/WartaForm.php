@@ -61,6 +61,25 @@ class WartaForm
                         ->required()
                         ->maxLength(500)
                         ->columnSpanFull(),
+
+                    Select::make('kategori')
+                        ->label('Kategori Berita')
+                        ->options([
+                            'Investasi' => 'Investasi',
+                            'Perizinan' => 'Perizinan',
+                            'Pelayanan Publik' => 'Pelayanan Publik',
+                            'Kegiatan' => 'Kegiatan',
+                            'Pengumuman' => 'Pengumuman',
+                            'Infrastruktur' => 'Infrastruktur',
+                            'Lainnya' => 'Lainnya',
+                        ])
+                        ->placeholder('Pilih kategori berita')
+                        ->native(false)
+                        ->searchable()
+                        ->required()
+                        ->validationMessages([
+                            'required' => 'Kategori berita wajib dipilih.',
+                        ]),
                 ])
                 ->columns(2)
                 ->columnSpanFull()

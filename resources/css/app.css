@@ -1,3 +1,4 @@
+
 @import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -9,6 +10,7 @@
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
         "Noto Color Emoji";
 }
+
 /* ===============================
    PROFESSIONAL CONTENT CALENDAR
 ================================ */
@@ -18,47 +20,34 @@
 }
 
 /* Calendar Container */
-
 .fc {
     background: white;
-
     border: 1px solid #f1f5f9;
-
     border-radius: 18px;
-
     overflow: hidden;
 }
 
 /* Toolbar */
-
 .fc .fc-toolbar {
     padding: 18px 20px;
 }
 
 .fc .fc-toolbar-title {
     font-size: 20px;
-
     font-weight: 700;
-
     color: #111827;
 }
 
 /* Button */
-
 .fc .fc-button {
     background: white !important;
-
     border: 1px solid #e5e7eb !important;
-
     color: #374151 !important;
-
     border-radius: 10px !important;
-
     padding: 7px 14px !important;
-
     font-size: 13px !important;
-
     font-weight: 500;
+    box-shadow: none !important;
 }
 
 .fc .fc-button:hover {
@@ -67,112 +56,85 @@
 
 .fc .fc-button-primary:not(:disabled).fc-button-active {
     background: #2563eb !important;
-
     border-color: #2563eb !important;
-
     color: white !important;
 }
 
 /* Header Hari */
-
 .fc .fc-col-header-cell {
     background: #fafafa;
-
     border-color: #f1f5f9;
 }
 
 .fc .fc-col-header-cell-cushion {
     padding: 12px;
-
     font-size: 12px;
-
     font-weight: 600;
-
     color: #64748b;
+    text-decoration: none;
 }
 
 /* Tanggal */
-
-.fc-daygrid-day {
+.fc .fc-daygrid-day {
     border-color: #f1f5f9 !important;
 }
 
-.fc-daygrid-day-number {
+.fc .fc-daygrid-day-number {
     padding: 10px;
-
     font-size: 13px;
-
     color: #475569;
+    text-decoration: none;
 }
 
-/* Hari aktif */
-
+/* Hari Aktif */
 .fc .fc-day-today {
     background: #f8fafc !important;
 }
 
 /* Event */
-
-.fc-event {
+.fc .fc-event {
     border: none !important;
-
     border-radius: 8px !important;
-
     padding: 4px 7px !important;
-
     margin: 3px 5px !important;
-
     font-size: 12px !important;
-
     box-shadow: none !important;
 }
 
-.fc-event:hover {
+.fc .fc-event:hover {
     opacity: 0.85;
 }
 
 /* Custom Event */
-
 .calendar-event-custom {
     display: flex;
-
     flex-direction: column;
-
     gap: 2px;
 }
 
 .calendar-event-custom .event-title {
     font-size: 12px;
-
     font-weight: 600;
-
     color: inherit;
-
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
 
 .calendar-event-custom .event-time {
     font-size: 11px;
-
     opacity: 0.75;
 }
 
-/* Scrollbar jika event banyak */
-
-.fc-scroller {
+/* Scrollbar */
+.fc .fc-scroller {
     scrollbar-width: thin;
 }
 
 /* Mobile */
-
 @media (max-width: 768px) {
     .fc .fc-toolbar {
         flex-direction: column;
-
         gap: 10px;
     }
 
@@ -180,16 +142,16 @@
         font-size: 18px;
     }
 }
+
+/* Animasi */
 @keyframes scaleIn {
     from {
         opacity: 0;
-
         transform: scale(0.95);
     }
 
     to {
         opacity: 1;
-
         transform: scale(1);
     }
 }
