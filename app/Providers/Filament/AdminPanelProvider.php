@@ -30,8 +30,10 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->favicon(asset('image/logo.png'))
-            ->brandName('PTSP')
+            ->favicon(asset('image/ptsp.png'))
+            // ->brandName('PTSP')
+            ->brandLogo(asset('image/ptsp.png'))
+            ->brandLogoHeight('70px')
             ->id('admin')
             ->path('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
