@@ -13,17 +13,19 @@ class Warta extends Model
         'slug_url',
         'lead_berita',
         'badan_berita',
+        'kategori',
         'status_naskah',
         'jadwal_tayang',
         'catatan_koreksi',
         'timeline_id',
         'users_id',
         'reviewed_by',
-        'dokumentasi_utama'
+        'dokumentasi_utama',
     ];
 
     protected $casts = [
         'dokumentasi_utama' => 'array',
+        'jadwal_tayang' => 'date',
     ];
 
     public function author()
