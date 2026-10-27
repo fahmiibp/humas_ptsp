@@ -2,45 +2,50 @@
 
 namespace App\Repositories;
 
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\File;
+use App\Models\Warta;
+use Illuminate\Database\Eloquent\Collection;
 
 class ArticleRepository
 {
     public function all(): Collection
     {
-        $path = storage_path('app/articles.json');
+        return Warta::query()
+            ->whereNotNull('jadwal_tayang')
+            ->whereDate('jadwal_tayang', '<=', now()->toDateString())
+            ->where('status_naskah', 'Sudah Tayang')
+            ->orderByDesc('jadwal_tayang')
+            ->get();
+    }
 
-        if (! File::exists($path)) {
-            return collect();
-        }
-
-        return collect(json_decode(File::get($path), true))
-            ->map(function (array $a) {
-                $a['published_at'] = Carbon::parse($a['published_at']);
-                return (object) $a;
-            })
-            ->filter(fn($a) => $a->published_at->lte(now()))
-            ->sortByDesc('published_at')
+    public function categories(): \Illuminate\Support\Collection
+    {
+        return $this->all()
+            ->pluck('kategori')
+            ->filter()
+            ->unique()
             ->values();
     }
 
-    public function categories(): Collection
+    public function findBySlug(string $slug): ?Warta
     {
-        return $this->all()->pluck('category')->unique()->values();
+        return Warta::query()
+            ->where('slug_url', $slug)
+            ->where('status_naskah', 'Sudah Tayang')
+            ->whereNotNull('jadwal_tayang')
+            ->whereDate('jadwal_tayang', '<=', now()->toDateString())
+            ->first();
     }
 
-    public function findBySlug(string $slug): ?object
+    public function related(Warta $article, int $limit = 3): Collection
     {
-        return $this->all()->firstWhere('slug', $slug);
-    }
-
-    public function related(object $article, int $limit = 3): Collection
-    {
-        return $this->all()
-            ->where('category', $article->category)
-            ->where('slug', '!=', $article->slug)
-            ->take($limit);
+        return Warta::query()
+            ->where('kategori', $article->kategori)
+            ->where('slug_url', '!=', $article->slug_url)
+            ->where('status_naskah', 'Sudah Tayang')
+            ->whereNotNull('jadwal_tayang')
+            ->whereDate('jadwal_tayang', '<=', now()->toDateString())
+            ->orderByDesc('jadwal_tayang')
+            ->limit($limit)
+            ->get();
     }
 }

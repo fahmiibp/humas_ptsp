@@ -30,7 +30,7 @@ class UserForm
                 TextInput::make('email')
                     ->label('Alamat Email')
                     ->email()
-                    ->required(),                
+                    ->required(),
                 TextInput::make('password')
                     ->label('Kata Sandi')
                     ->password()
@@ -40,12 +40,11 @@ class UserForm
                     ->maxLength(255)
                     ->helperText(
                         fn(string $operation): string =>
-                            $operation === 'edit' ? 'Kosongkan jika tidak ingin mengubah kata sandi.' : ''
+                        $operation === 'edit' ? 'Kosongkan jika tidak ingin mengubah kata sandi.' : ''
                     ),
                 Select::make('roles')
                     ->label('Peran')
                     ->relationship('roles', 'name')
-                    ->multiple()
                     ->preload()
                     ->searchable()
                     ->required(),
