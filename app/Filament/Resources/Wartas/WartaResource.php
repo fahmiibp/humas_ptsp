@@ -79,12 +79,23 @@ class WartaResource extends Resource
 
     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
 
-        return (bool) $user
-            && $user->hasRole('Penulis')
-            && (int) $record->users_id === (int) $user->getKey()
-            && in_array($record->status_naskah, ['Draft Penulis', 'Perlu Revisi'], true);
+        if (! $user) {
+            return false;
+        }
+
+        // Penulis hanya boleh mengedit naskah miliknya
+        // saat masih berupa draft atau perlu revisi.
+        $isOwner = (int) $record->users_id === (int) $user->id;
+
+        $isEditableStatus = in_array(
+            $record->status_naskah,
+            ['Draft Penulis', 'Perlu Revisi'],
+            true
+        );
+
+        return $isOwner && $isEditableStatus;
     }
 
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool

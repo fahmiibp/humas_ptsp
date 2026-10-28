@@ -18,44 +18,83 @@ class WartaInfolist
         return $schema
             ->columns(1)
             ->components([
+
+                /*
+                 * CATATAN KOREKSI
+                 * Ditampilkan paling atas jika verifikator
+                 * memberikan catatan untuk penulis.
+                 */
+                Section::make('Catatan Koreksi dari Verifikator')
+                    ->description(
+                        'Periksa masukan berikut sebelum memperbaiki dan mengirim ulang naskah.'
+                    )
+                    ->icon(Heroicon::ExclamationTriangle)
+                    ->visible(
+                        fn ($record): bool =>
+                            filled($record?->catatan_koreksi)
+                    )
+                    ->schema([
+                        TextEntry::make('catatan_koreksi')
+                            ->hiddenLabel()
+                            ->placeholder(
+                                'Tidak ada catatan koreksi.'
+                            )
+                            ->columnSpanFull(),
+                    ]),
+
+                /*
+                 * RINGKASAN DAN STATUS NASKAH
+                 */
                 Section::make('Pratinjau Siaran Pers')
                     ->description(
                         'Ringkasan dan identitas utama naskah berita.'
                     )
                     ->icon(Heroicon::Newspaper)
                     ->schema([
-
                         TextEntry::make('status_naskah')
                             ->label('Status Naskah')
                             ->badge()
                             ->formatStateUsing(
-                                fn($state): string =>
-                                Str::headline((string) $state)
+                                fn ($state): string =>
+                                    Str::headline((string) $state)
                             )
-                            ->color(fn($state): string => match (Str::lower((string) $state)) {
-                                'draft', 'draf' => 'gray',
+                            ->color(
+                                fn ($state): string => match (
+                                    Str::lower(
+                                        str_replace(
+                                            ' ',
+                                            '_',
+                                            (string) $state
+                                        )
+                                    )
+                                ) {
+                                    'draft',
+                                    'draf',
+                                    'draft_penulis' => 'gray',
 
-                                'review',
-                                'menunggu_review',
-                                'dalam_review' => 'info',
+                                    'review',
+                                    'menunggu_review',
+                                    'dalam_review',
+                                    'perlu_review_koordinator' => 'info',
 
-                                'revisi',
-                                'perlu_revisi' => 'warning',
+                                    'revisi',
+                                    'perlu_revisi' => 'warning',
 
-                                'ditolak',
-                                'rejected' => 'danger',
+                                    'ditolak',
+                                    'rejected' => 'danger',
 
-                                'approved',
-                                'disetujui',
-                                'published',
-                                'terbit',
-                                'tayang' => 'success',
+                                    'approved',
+                                    'disetujui',
+                                    'published',
+                                    'terbit',
+                                    'tayang' => 'success',
 
-                                'scheduled',
-                                'dijadwalkan' => 'primary',
+                                    'scheduled',
+                                    'dijadwalkan' => 'primary',
 
-                                default => 'gray',
-                            })
+                                    default => 'gray',
+                                }
+                            )
                             ->placeholder('Belum ditentukan'),
 
                         TextEntry::make('judul_siaran_pers')
@@ -73,21 +112,23 @@ class WartaInfolist
                                 'Ringkasan berita belum tersedia.'
                             )
                             ->columnSpanFull(),
-
                     ]),
 
+                /*
+                 * ISI BERITA DAN SIDEBAR
+                 */
                 Grid::make([
                     'default' => 1,
                     'xl' => 3,
                 ])
                     ->schema([
+
                         Section::make('Isi Lengkap Berita')
                             ->description(
                                 'Konten utama siaran pers.'
                             )
                             ->icon(Heroicon::DocumentText)
                             ->schema([
-
                                 TextEntry::make('badan_berita')
                                     ->hiddenLabel()
                                     ->html()
@@ -95,35 +136,21 @@ class WartaInfolist
                                         'Konten berita belum tersedia.'
                                     )
                                     ->columnSpanFull(),
-
                             ])
                             ->columnSpan([
                                 'default' => 1,
                                 'xl' => 2,
                             ]),
 
-                        /*
-                        | RIGHT SIDEBAR
-                        */
-
                         Grid::make(1)
                             ->schema([
 
-                                Section::make(
-                                    'Informasi Publikasi'
-                                )
-                                    ->icon(
-                                        Heroicon::CalendarDays
-                                    )
+                                Section::make('Informasi Publikasi')
+                                    ->icon(Heroicon::CalendarDays)
                                     ->compact()
                                     ->schema([
-
-                                        TextEntry::make(
-                                            'jadwal_tayang'
-                                        )
-                                            ->label(
-                                                'Jadwal Tayang'
-                                            )
+                                        TextEntry::make('jadwal_tayang')
+                                            ->label('Jadwal Tayang')
                                             ->icon(
                                                 Heroicon::CalendarDays
                                             )
@@ -135,60 +162,23 @@ class WartaInfolist
                                                 'Belum dijadwalkan'
                                             ),
 
-                                        TextEntry::make(
-                                            'slug_url'
-                                        )
+                                        TextEntry::make('slug_url')
                                             ->label('Slug URL')
-                                            ->icon(
-                                                Heroicon::Link
-                                            )
+                                            ->icon(Heroicon::Link)
                                             ->copyable()
                                             ->copyMessage(
                                                 'Slug berhasil disalin'
                                             )
                                             ->color('primary')
                                             ->placeholder('-'),
-
                                     ]),
 
-                                Section::make(
-                                    'Catatan Editorial'
-                                )
-                                    ->description(
-                                        'Masukan dan koreksi naskah.'
-                                    )
-                                    ->icon(
-                                        Heroicon::PencilSquare
-                                    )
-                                    ->compact()
-                                    ->schema([
-
-                                        TextEntry::make(
-                                            'catatan_koreksi'
-                                        )
-                                            ->label(
-                                                'Catatan Koreksi'
-                                            )
-                                            ->placeholder(
-                                                'Belum ada catatan koreksi.'
-                                            )
-                                            ->columnSpanFull(),
-
-                                    ]),
-
-                                Section::make(
-                                    'Riwayat Aktivitas'
-                                )
+                                Section::make('Riwayat Aktivitas')
                                     ->icon(Heroicon::Clock)
                                     ->compact()
                                     ->schema([
-
-                                        TextEntry::make(
-                                            'created_at'
-                                        )
-                                            ->label(
-                                                'Dibuat Pada'
-                                            )
+                                        TextEntry::make('created_at')
+                                            ->label('Dibuat Pada')
                                             ->icon(
                                                 Heroicon::CalendarDays
                                             )
@@ -198,26 +188,17 @@ class WartaInfolist
                                             )
                                             ->placeholder('-'),
 
-                                        TextEntry::make(
-                                            'updated_at'
-                                        )
-                                            ->label(
-                                                'Terakhir Diperbarui'
-                                            )
-                                            ->icon(
-                                                Heroicon::Clock
-                                            )
+                                        TextEntry::make('updated_at')
+                                            ->label('Terakhir Diperbarui')
+                                            ->icon(Heroicon::Clock)
                                             ->since()
                                             ->dateTimeTooltip(
                                                 'd M Y, H:i'
                                             )
                                             ->placeholder('-'),
-
                                     ]),
 
-                                Section::make(
-                                    'Informasi Sistem'
-                                )
+                                Section::make('Informasi Sistem')
                                     ->description(
                                         'Referensi internal naskah.'
                                     )
@@ -227,33 +208,21 @@ class WartaInfolist
                                     ->compact()
                                     ->collapsed()
                                     ->schema([
-
-                                        TextEntry::make(
-                                            'timeline_id'
-                                        )
-                                            ->label(
-                                                'ID Timeline'
-                                            )
+                                        TextEntry::make('timeline_id')
+                                            ->label('ID Timeline')
                                             ->numeric()
                                             ->placeholder('-'),
 
-                                        TextEntry::make(
-                                            'users_id'
-                                        )
-                                            ->label(
-                                                'ID Pengguna'
-                                            )
+                                        TextEntry::make('users_id')
+                                            ->label('ID Pengguna')
                                             ->numeric()
                                             ->placeholder('-'),
-
                                     ]),
-
                             ])
                             ->columnSpan([
                                 'default' => 1,
                                 'xl' => 1,
                             ]),
-
                     ]),
             ]);
     }
