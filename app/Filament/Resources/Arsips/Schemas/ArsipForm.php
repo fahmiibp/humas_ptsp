@@ -4,15 +4,17 @@ namespace App\Filament\Resources\Arsips\Schemas;
 
 use App\Models\Timeline;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class ArsipForm
 {
@@ -20,126 +22,151 @@ class ArsipForm
     {
         return $schema
             ->components([
-                Section::make('Informasi Arsip Dokumentasi')
-                    ->description('Lengkapi informasi kegiatan dan dokumentasi yang akan diarsipkan.')
-                    ->icon('heroicon-o-document-text')
-                    ->schema([
-                        Select::make('id_timeline')
-                            ->label('Nama Kegiatan')
-                            ->placeholder('Pilih kegiatan')
-                            ->options(
-                                Timeline::query()->pluck('event_name', 'id')
-                            )
-                            ->searchable()
-                            ->preload()
-                            ->required()
-                            ->columnSpanFull(),
+                Grid::make([
+                    'default' => 1,
+                    'lg' => 3,
+                ])
+                ->schema([
+                    // Panel Kiri / Utama: Detail Kegiatan & Metadata (2 Kolom)
+                    Grid::make(1)
+                        ->columnSpan(['lg' => 2])
+                        ->schema([
+                            Section::make('Keterkaitan Agenda & Detail')
+                                ->description('Pilih agenda kegiatan yang terkait dan tentukan judul dokumentasi.')
+                                ->icon('heroicon-m-calendar-days')
+                                ->columns(2)
+                                ->schema([
+                                    Select::make('id_timeline')
+                                        ->label('Agenda Kegiatan Terkait')
+                                        ->placeholder('Pilih agenda kegiatan...')
+                                        ->options(Timeline::query()->pluck('event_name', 'id'))
+                                        ->searchable()
+                                        ->preload()
+                                        ->required()
+                                        ->native(false)
+                                        ->prefixIcon('heroicon-m-calendar')
+                                        ->columnSpanFull()
+                                        ->live()
+                                        ->afterStateUpdated(function ($state, Set $set) {
+                                            if (! $state) return;
+                                            $timeline = Timeline::find($state);
+                                            if ($timeline?->start_date) {
+                                                $set('event_date', $timeline->start_date);
+                                            }
+                                        })
+                                        ->helperText('Tanggal kegiatan akan terisi otomatis saat agenda dipilih.'),
 
-                        TextInput::make('title')
-                            ->label('Judul Arsip')
-                            ->placeholder('Contoh: Peresmian Gedung DPMPTSP')
-                            ->helperText('Gunakan judul yang singkat dan jelas.')
-                            ->required()
-                            ->maxLength(255),
+                                    TextInput::make('title')
+                                        ->label('Judul Dokumentasi Arsip')
+                                        ->placeholder('Contoh: Peliputan Peresmian Gedung Baru')
+                                        ->prefixIcon('heroicon-m-document-text')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->columnSpanFull(),
 
-                        DatePicker::make('event_date')
-                            ->label('Tanggal Kegiatan')
-                            ->placeholder('Pilih tanggal kegiatan')
-                            ->native(false)
-                            ->displayFormat('d F Y')
-                            ->required(),
+                                    DatePicker::make('event_date')
+                                        ->label('Tanggal Pelaksanaan')
+                                        ->placeholder('Pilih tanggal')
+                                        ->native(false)
+                                        ->displayFormat('d F Y')
+                                        ->prefixIcon('heroicon-m-calendar-days')
+                                        ->required(),
 
-                        Select::make('photograper_name')
-                            ->label('Nama Fotografer')
-                            ->placeholder('Pilih fotografer')
-                            ->options(
-                                User::query()->pluck('name', 'id')
-                            )
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                                    Select::make('photograper_name')
+                                        ->label('Fotografer / Tim Liputan')
+                                        ->placeholder('Pilih fotografer...')
+                                        ->options(User::query()->pluck('name', 'id'))
+                                        ->searchable()
+                                        ->preload()
+                                        ->native(false)
+                                        ->prefixIcon('heroicon-m-camera')
+                                        ->required(),
+                                ]),
 
-                        TextInput::make('drive_url')
-                            ->label('Link Google Drive')
-                            ->placeholder('https://drive.google.com/drive/folders/...')
-                            ->helperText('Masukkan tautan folder atau file Google Drive yang dapat dibuka oleh pihak terkait.')
-                            ->url()
-                            ->required()
-                            ->maxLength(2000)
-                            ->rules([
-                                function () {
-                                    return function (
-                                        string $attribute,
-                                        $value,
-                                        \Closure $fail
-                                    ) {
-                                        if (! is_string($value) || trim($value) === '') {
-                                            return;
-                                        }
+                            Section::make('Foto Dokumentasi')
+                                ->description('Unggah preview atau sampel foto dokumentasi kegiatan (maks. 10 file).')
+                                ->icon('heroicon-m-photo')
+                                ->schema([
+                                    FileUpload::make('sample_photos')
+                                        ->hiddenLabel()
+                                        ->image()
+                                        ->multiple()
+                                        ->maxFiles(10)
+                                        ->maxSize(10240)
+                                        ->acceptedFileTypes([
+                                            'image/jpeg',
+                                            'image/png',
+                                            'image/webp',
+                                        ])
+                                        ->disk('public')
+                                        ->directory('Cover_Foto')
+                                        ->visibility('public')
+                                        ->panelLayout('grid')
+                                        ->imageEditor()
+                                        ->reorderable()
+                                        ->columnSpanFull()
+                                        ->helperText('Format didukung: JPG, PNG, WebP (maks. 10MB per foto). Urutan foto dapat digeser.'),
+                                ]),
+                        ]),
 
-                                        $host = parse_url(trim($value), PHP_URL_HOST);
+                    // Panel Kanan / Samping: Tautan Cloud & Catatan Tambahan (1 Kolom)
+                    Grid::make(1)
+                        ->columnSpan(['lg' => 1])
+                        ->schema([
+                            Section::make('Penyimpanan Cloud')
+                                ->description('Tautan folder Google Drive master arsip.')
+                                ->icon('heroicon-m-cloud-arrow-up')
+                                ->schema([
+                                    TextInput::make('drive_url')
+                                        ->label('Link Google Drive')
+                                        ->placeholder('https://drive.google.com/drive/folders/...')
+                                        ->prefixIcon('heroicon-m-link')
+                                        ->url()
+                                        ->required()
+                                        ->maxLength(2000)
+                                        ->suffixAction(
+                                            Action::make('open_drive')
+                                                ->icon('heroicon-m-arrow-top-right-on-square')
+                                                ->tooltip('Buka link di tab baru')
+                                                ->url(fn (Get $get): ?string => $get('drive_url'), shouldOpenInNewTab: true)
+                                                ->visible(fn (Get $get): bool => filled($get('drive_url')))
+                                        )
+                                        ->rules([
+                                            function () {
+                                                return function (string $attribute, $value, \Closure $fail) {
+                                                    if (! is_string($value) || trim($value) === '') {
+                                                        return;
+                                                    }
 
-                                        $allowedHosts = [
-                                            'drive.google.com',
-                                            'docs.google.com',
-                                        ];
+                                                    $host = parse_url(trim($value), PHP_URL_HOST);
+                                                    $allowedHosts = [
+                                                        'drive.google.com',
+                                                        'docs.google.com',
+                                                    ];
 
-                                        if (
-                                            ! filter_var($value, FILTER_VALIDATE_URL)
-                                            || ! in_array(
-                                                strtolower((string) $host),
-                                                $allowedHosts,
-                                                true
-                                            )
-                                        ) {
-                                            $fail(
-                                                'Tautan tidak valid. Gunakan URL file atau folder Google Drive, misalnya https://drive.google.com/drive/folders/....'
-                                            );
-                                        }
-                                    };
-                                },
-                            ])
-                            ->columnSpanFull(),
+                                                    if (
+                                                        ! filter_var($value, FILTER_VALIDATE_URL)
+                                                        || ! in_array(strtolower((string) $host), $allowedHosts, true)
+                                                    ) {
+                                                        $fail('Gunakan tautan valid dari Google Drive (https://drive.google.com/...).');
+                                                    }
+                                                };
+                                            },
+                                        ])
+                                        ->helperText('Pastikan hak akses tautan Drive sudah disetel ke publik/pihak terkait.'),
+                                ]),
 
-                        Textarea::make('notes')
-                            ->label('Catatan')
-                            ->placeholder('Tambahkan keterangan kegiatan, isi dokumentasi, atau informasi lain (opsional).')
-                            ->rows(4)
-                            ->columnSpanFull()
-                            ->dehydrateStateUsing(
-                                fn ($state) => $state ?? ''
-                            ),
-
-                        
-                        FileUpload::make('sample_photos')
-                            ->label('Foto Dokumentasi')
-                            ->helperText('Unggah beberapa foto sekaligus. Format JPG, PNG, atau WebP. Maksimal 10 MB per foto.')
-                            ->image()
-                            ->multiple()
-                            ->maxFiles(10)
-                            ->maxSize(10240)
-                            ->acceptedFileTypes([
-                                'image/jpeg',
-                                'image/png',
-                                'image/webp',
-                            ])
-                            ->disk('public')
-                            ->directory('Cover_Foto')
-                            ->visibility('public')
-                            ->formatStateUsing(function ($state) {
-                                if (is_string($state)) {
-                                    $state = json_decode($state, true);
-                                }
-
-                                return is_array($state) ? array_values($state) : [];
-                            })
-                            ->reorderable()
-                            ->columnSpanFull(),
-
-                    ])
-                    ->columns(2)
-                    ->columnSpanFull()
-                    ->collapsible(),
+                            Section::make('Catatan Tambahan')
+                                ->icon('heroicon-m-pencil-square')
+                                ->schema([
+                                    Textarea::make('notes')
+                                        ->hiddenLabel()
+                                        ->placeholder('Tuliskan ringkasan hasil liputan, daftar tamu penting, atau keterangan khusus (opsional)...')
+                                        ->rows(6)
+                                        ->dehydrateStateUsing(fn ($state) => $state ?? ''),
+                                ]),
+                        ]),
+                ])->columnSpanFull(),
             ]);
     }
 }

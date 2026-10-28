@@ -5,9 +5,7 @@ use App\Http\Controllers\SiaranPersController;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Articles\{Index, Show};
 
-Route::redirect('/', '/admin');
-
-Route::get('/berita', Index::class)->name('home');
+Route::get('/', Index::class)->name('home');
 Route::get('/berita/{slug}', Show::class)->name('articles.show');
 
 Route::delete('/admin/konten-medsos/{id}/calendar-delete', function ($id) {
