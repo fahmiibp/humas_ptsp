@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Wartas\Pages;
 
 use App\Filament\Resources\Wartas\WartaResource;
 use Filament\Actions\Action;
-use Filament\Facades\Filament;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\ViewRecord;
@@ -18,12 +18,54 @@ class ViewWarta extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            // Edit hanya untuk penulis pemilik naskah
+            // yang berstatus Draft Penulis atau Perlu Revisi.
+            
+            Action::make('editWarta')
+                ->label('Edit Warta')
+                ->icon('heroicon-o-pencil-square')
+                ->color('primary')
+                ->button()
+                ->url(fn (): string => WartaResource::getUrl('edit', [
+                    'record' => $this->getRecord(),
+                ]))
+                ->visible(function (): bool {
+                    $record = $this->getRecord();
+                    $user = Auth::user();
+
+                    return $user !== null
+                        && (int) $record->users_id === (int) $user->id
+                        && in_array(
+                            $record->status_naskah,
+                            ['Draft Penulis', 'Perlu Revisi'],
+                            true
+                        );
+                }),
+
+
+            // Alur verifikasi tetap dipertahankan.
             Action::make('verifikasi')
                 ->label('Verifikasi Naskah')
-                ->icon('heroicon-m-check')
+                ->icon('heroicon-o-check-circle')
                 ->color('success')
+<<<<<<< HEAD
                 ->visible(fn(): bool => (Auth::user()?->hasAnyRole(['Verifikator', 'Koordinator']) ?? false)
                     && $this->getRecord()->status_naskah === 'Perlu Review Koordinator')
+=======
+                ->visible(function (): bool {
+                    $user = Auth::user();
+                    $record = $this->getRecord();
+
+                    return (
+                        $user?->hasAnyRole([
+                            'Verifikator',
+                            'Koordinator',
+                        ]) ?? false
+                    )
+                        && $record->status_naskah
+                            === 'Perlu Review Koordinator';
+                })
+>>>>>>> a740064813658ebf7287ad193fb105e8a39faf17
                 ->form([
                     Select::make('status_naskah')
                         ->label('Keputusan')
@@ -34,20 +76,34 @@ class ViewWarta extends ViewRecord
                         ->native(false)
                         ->required()
                         ->live(),
+
                     Textarea::make('catatan_koreksi')
                         ->label('Catatan untuk Penulis')
-                        ->placeholder('Jelaskan bagian yang perlu diperbaiki jika ditolak...')
+                        ->placeholder(
+                            'Jelaskan bagian yang perlu diperbaiki jika ditolak...'
+                        )
                         ->rows(4)
+<<<<<<< HEAD
                         ->required(fn($get): bool => $get('status_naskah') === 'Perlu Revisi'),
+=======
+                        ->required(
+                            fn ($get): bool =>
+                                $get('status_naskah') === 'Perlu Revisi'
+                        ),
+>>>>>>> a740064813658ebf7287ad193fb105e8a39faf17
                 ])
-                ->action(function (Model $record, array $data): void {
+                ->action(function (
+                    Model $record,
+                    array $data
+                ): void {
                     $status = $data['status_naskah'];
 
                     $record->update([
                         'status_naskah' => $status,
-                        'catatan_koreksi' => $status === 'Perlu Revisi'
-                            ? $data['catatan_koreksi']
-                            : null,
+                        'catatan_koreksi' =>
+                            $status === 'Perlu Revisi'
+                                ? ($data['catatan_koreksi'] ?? null)
+                                : null,
                         'reviewed_by' => Auth::id(),
                     ]);
                 }),

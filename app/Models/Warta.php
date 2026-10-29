@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Warta extends Model
 {
@@ -13,7 +14,7 @@ class Warta extends Model
         'slug_url',
         'lead_berita',
         'badan_berita',
-        'kategori',
+        'kategori_id',
         'status_naskah',
         'jadwal_tayang',
         'catatan_koreksi',
@@ -23,23 +24,43 @@ class Warta extends Model
         'dokumentasi_utama',
     ];
 
-    protected $casts = [
-        'dokumentasi_utama' => 'array',
-        'jadwal_tayang' => 'date',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'dokumentasi_utama' => 'array',
+            'jadwal_tayang' => 'date',
+        ];
+    }
 
-    public function author()
+    /**
+     * Relasi ke penulis berita.
+     */
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'users_id');
     }
 
-    public function reviewer()
+    /**
+     * Relasi ke verifikator yang memeriksa berita.
+     */
+    public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    public function timeline()
+    /**
+     * Relasi ke agenda atau timeline liputan.
+     */
+    public function timeline(): BelongsTo
     {
         return $this->belongsTo(Timeline::class, 'timeline_id');
+    }
+
+    /**
+     * Relasi ke kategori berita.
+     */
+    public function kategori(): BelongsTo
+    {
+        return $this->belongsTo(Kategori::class, 'kategori_id');
     }
 }

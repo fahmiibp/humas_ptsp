@@ -5,7 +5,11 @@ namespace App\Filament\Resources\Wartas\Schemas;
 use App\Ai\Agents\PenulisBerita;
 use App\Models\Timeline;
 use App\Models\Warta;
+<<<<<<< HEAD
 use Carbon\Carbon;
+=======
+use App\Services\GeminiWartaService;
+>>>>>>> a740064813658ebf7287ad193fb105e8a39faf17
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -20,7 +24,11 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+<<<<<<< HEAD
 use Illuminate\Support\Testing\Fakes\NotificationFake;
+=======
+use Throwable;
+>>>>>>> a740064813658ebf7287ad193fb105e8a39faf17
 
 class WartaForm
 {
@@ -36,7 +44,9 @@ class WartaForm
                         ->placeholder(
                             'Contoh: DPMPTSP Jateng Catat Realisasi Investasi Kuartal I Lampaui Target'
                         )
-                        ->helperText('Gunakan judul yang jelas, informatif, dan menarik.')
+                        ->helperText(
+                            'Gunakan judul yang jelas, informatif, dan menarik.'
+                        )
                         ->required()
                         ->maxLength(255)
                         ->live(onBlur: true)
@@ -53,7 +63,13 @@ class WartaForm
                     TextInput::make('slug_url')
                         ->label('Slug URL')
                         ->placeholder('slug-otomatis-dari-judul')
+<<<<<<< HEAD
                         ->helperText('URL dibuat otomatis dari judul saat data baru dibuat.')
+=======
+                        ->helperText(
+                            'URL akan dibuat otomatis berdasarkan judul.'
+                        )
+>>>>>>> a740064813658ebf7287ad193fb105e8a39faf17
                         ->prefix(url('/warta') . '/')
                         ->required()
                         ->unique(
@@ -66,26 +82,29 @@ class WartaForm
 
                     Textarea::make('lead_berita')
                         ->label('Lead Berita')
-                        ->placeholder('Tuliskan ringkasan atau paragraf pembuka berita...')
-                        ->helperText('Ringkasan singkat yang menjelaskan inti berita.')
+                        ->placeholder(
+                            'Tuliskan ringkasan atau paragraf pembuka berita...'
+                        )
+                        ->helperText(
+                            'Ringkasan singkat yang menjelaskan inti berita.'
+                        )
                         ->required()
                         ->maxLength(500)
                         ->columnSpanFull(),
 
-                    Select::make('kategori')
+                    
+                    Select::make('kategori_id')
                         ->label('Kategori Berita')
-                        ->options([
-                            'Investasi' => 'Investasi',
-                            'Perizinan' => 'Perizinan',
-                            'Pelayanan Publik' => 'Pelayanan Publik',
-                            'Kegiatan' => 'Kegiatan',
-                            'Pengumuman' => 'Pengumuman',
-                            'Infrastruktur' => 'Infrastruktur',
-                            'Lainnya' => 'Lainnya',
-                        ])
+                        ->options(
+                            fn (): array => \App\Models\Kategori::query()
+                                ->orderBy('nama_kategori')
+                                ->pluck('nama_kategori', 'id')
+                                ->all()
+                        )
                         ->placeholder('Pilih kategori berita')
                         ->native(false)
                         ->searchable()
+                        ->preload()
                         ->required()
                         ->validationMessages([
                             'required' => 'Kategori berita wajib dipilih.',
@@ -131,26 +150,27 @@ class WartaForm
                 ->columnSpanFull(),
 
             Section::make('Konten Berita')
-                ->description('Susun isi lengkap siaran pers menggunakan editor teks.')
+                ->description(
+                    'Susun isi lengkap siaran pers menggunakan editor teks.'
+                )
                 ->icon('heroicon-o-pencil-square')
                 ->schema([
                     RichEditor::make('badan_berita')
-                        ->label('Badan Berita Lengkap')
-                        ->placeholder('Mulai tuliskan naskah lengkap siaran pers di sini...')
+                        ->label('Isi Berita')
+                        ->required()
+                        ->columnSpanFull()
                         ->toolbarButtons([
-                            'blockquote',
                             'bold',
+                            'italic',
+                            'underline',
                             'bulletList',
+                            'orderedList',
                             'h2',
                             'h3',
-                            'italic',
-                            'link',
-                            'orderedList',
-                            'redo',
-                            'strike',
-                            'underline',
                             'undo',
+                            'redo',
                         ])
+<<<<<<< HEAD
                         ->required()
                         ->columnSpanFull()
                         ->hintAction(
@@ -164,12 +184,46 @@ class WartaForm
                                     if (blank($judul) && blank($lead)) {
                                         Notification::make()
                                             ->title('Isi judul dan lead berita terlebih dahulu.')
+=======
+                        ->afterContent(
+                            Action::make('generateAiDraft')
+                                ->label('Buat Draf dengan AI')
+                                ->icon('heroicon-o-sparkles')
+                                ->color('info')
+                                ->button()
+                                ->action(function (
+                                    \Filament\Schemas\Components\Utilities\Get $schemaGet,
+                                    \Filament\Schemas\Components\Utilities\Set $schemaSet,
+                                    GeminiWartaService $gemini
+                                ): void {
+                                    $judul = trim(
+                                        (string) (
+                                            $schemaGet('judul_siaran_pers') ?? ''
+                                        )
+                                    );
+
+                                    $lead = trim(
+                                        (string) (
+                                            $schemaGet('lead_berita') ?? ''
+                                        )
+                                    );
+
+                                    $tanggal = $schemaGet('jadwal_tayang');
+
+                                    if ($judul === '') {
+                                        Notification::make()
+                                            ->title('Judul berita belum diisi')
+                                            ->body(
+                                                'Isi judul berita sebelum membuat draf dengan AI.'
+                                            )
+>>>>>>> a740064813658ebf7287ad193fb105e8a39faf17
                                             ->warning()
                                             ->send();
 
                                         return;
                                     }
 
+<<<<<<< HEAD
                                     if (blank($judul)) {
                                         Notification::make()
                                             ->title('Isi judul berita terlebih dahulu.')
@@ -244,6 +298,35 @@ class WartaForm
                                         Notification::make()
                                             ->title('Gagal menghasilkan konten berita.')
                                             ->body('Silakan coba lagi beberapa saat.')
+=======
+                                    try {
+                                        $draft = $gemini->generateDraft([
+                                            'judul' => $judul,
+                                            'lead' => $lead,
+                                            'tanggal' => $tanggal,
+                                        ]);
+
+                                        // Mengisi editor saja; tidak menyimpan record.
+                                        $schemaSet('badan_berita', $draft);
+
+                                        Notification::make()
+                                            ->title('Draf berita berhasil dibuat')
+                                            ->body(
+                                                'Periksa dan sunting hasil AI sebelum menyimpan berita.'
+                                            )
+                                            ->success()
+                                            ->send();
+                                    } catch (Throwable $exception) {
+                                        report($exception);
+
+                                        Notification::make()
+                                            ->title('Draf AI gagal dibuat')
+                                            ->body(
+                                                $exception instanceof \RuntimeException
+                                                    ? $exception->getMessage()
+                                                    : 'Terjadi kesalahan saat membuat draf. Periksa log Laravel.'
+                                            )
+>>>>>>> a740064813658ebf7287ad193fb105e8a39faf17
                                             ->danger()
                                             ->send();
                                     }
@@ -252,8 +335,53 @@ class WartaForm
                 ])
                 ->columnSpanFull(),
 
+<<<<<<< HEAD
+=======
+            Section::make('Publikasi dan Penjadwalan')
+                ->description(
+                    'Atur status naskah dan jadwal penayangan.'
+                )
+                ->icon('heroicon-o-calendar-days')
+                ->schema([
+                    DatePicker::make('jadwal_tayang')
+                        ->label('Jadwal Tayang')
+                        ->placeholder('Pilih tanggal tayang')
+                        ->native(false)
+                        ->displayFormat('d F Y')
+                        ->required(),
+
+                    Select::make('timeline_id')
+                        ->label('Agenda / Timeline Liputan')
+                        ->relationship(
+                            name: 'timeline',
+                            titleAttribute: 'event_name'
+                        )
+                        ->getOptionLabelFromRecordUsing(
+                            fn (Timeline $record): string => $record->event_name
+                        )
+                        ->searchable()
+                        ->preload()
+                        ->native(false)
+                        ->placeholder('Pilih agenda liputan')
+                        ->helperText(
+                            'Opsional. Pilih agenda jika siaran pers terkait dengan agenda liputan.'
+                        )
+                        ->nullable()
+                        ->required(false)
+                        ->columnSpanFull(),
+
+                    Hidden::make('users_id')
+                        ->default(fn () => auth()->id())
+                        ->required(),
+                ])
+                ->columns(2)
+                ->columnSpanFull(),
+
+>>>>>>> a740064813658ebf7287ad193fb105e8a39faf17
             Section::make('Dokumentasi dan Cover')
-                ->description('Unggah foto utama untuk kebutuhan publikasi berita.')
+                ->description(
+                    'Unggah foto utama untuk kebutuhan publikasi berita.'
+                )
                 ->icon('heroicon-o-photo')
                 ->schema([
                     FileUpload::make('dokumentasi_utama')

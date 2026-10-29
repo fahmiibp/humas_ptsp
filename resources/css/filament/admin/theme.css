@@ -141,3 +141,34 @@
     box-shadow: none !important;
     border: none !important;
 }
+
+
+/* Perbaikan layout tombol aksi pada tabel Arsip Dokumentasi */
+.fi-ta-record-actions,
+.fi-ta-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Cegah tombol melebar keluar dari area aksi */
+.fi-ta-record-actions > *,
+.fi-ta-actions > * {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Jaga agar label tombol tidak memaksakan lebar */
+.fi-ta-record-actions button,
+.fi-ta-actions button,
+.fi-ta-record-actions a,
+.fi-ta-actions a {
+    white-space: nowrap;
+}
