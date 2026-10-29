@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Support\Testing\Fakes\NotificationFake;
 
 class WartaForm
 {
@@ -160,20 +161,29 @@ class WartaForm
                                     $judul = $get('judul_siaran_pers');
                                     $lead = $get('lead_berita');
 
-                                    if (blank($judul) || blank($lead)) {
-                                        if (blank($judul)) {
-                                            Notification::make()
-                                                ->title('Isi judul berita terlebih dahulu.')
-                                                ->warning()
-                                                ->send();
-                                        }
+                                    if (blank($judul) && blank($lead)) {
+                                        Notification::make()
+                                            ->title('Isi judul dan lead berita terlebih dahulu.')
+                                            ->warning()
+                                            ->send();
 
-                                        if (blank($lead)) {
-                                            Notification::make()
-                                                ->title('Isi lead berita terlebih dahulu.')
-                                                ->warning()
-                                                ->send();
-                                        }
+                                        return;
+                                    }
+
+                                    if (blank($judul)) {
+                                        Notification::make()
+                                            ->title('Isi judul berita terlebih dahulu.')
+                                            ->warning()
+                                            ->send();
+
+                                        return;
+                                    }
+
+                                    if (blank($lead)) {
+                                        Notification::make()
+                                            ->title('Isi lead berita terlebih dahulu.')
+                                            ->warning()
+                                            ->send();
 
                                         return;
                                     }

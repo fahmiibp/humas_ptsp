@@ -37,9 +37,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName('DPMPTSP Prov. Jateng')
-            ->brandLogo(asset('image/logo.png'))
-            ->brandLogoHeight('2.5rem')
-            ->favicon(asset('image/logo.png'))
+            ->brandLogo(asset('image/ptsp.png'))
+            ->brandLogoHeight('70px')
+            ->favicon(asset('image/ptsp.png'))
             ->viteTheme('resources/css/filament/admin/theme.css')
 
             // Tipografi & Palet Warna Modern

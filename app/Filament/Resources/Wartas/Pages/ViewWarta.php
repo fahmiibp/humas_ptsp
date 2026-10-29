@@ -22,7 +22,7 @@ class ViewWarta extends ViewRecord
                 ->label('Verifikasi Naskah')
                 ->icon('heroicon-m-check')
                 ->color('success')
-                ->visible(fn (): bool => (Auth::user()?->hasAnyRole(['Verifikator', 'Koordinator']) ?? false)
+                ->visible(fn(): bool => (Auth::user()?->hasAnyRole(['Verifikator', 'Koordinator']) ?? false)
                     && $this->getRecord()->status_naskah === 'Perlu Review Koordinator')
                 ->form([
                     Select::make('status_naskah')
@@ -38,7 +38,7 @@ class ViewWarta extends ViewRecord
                         ->label('Catatan untuk Penulis')
                         ->placeholder('Jelaskan bagian yang perlu diperbaiki jika ditolak...')
                         ->rows(4)
-                        ->required(fn ($get): bool => $get('status_naskah') === 'Perlu Revisi'),
+                        ->required(fn($get): bool => $get('status_naskah') === 'Perlu Revisi'),
                 ])
                 ->action(function (Model $record, array $data): void {
                     $status = $data['status_naskah'];

@@ -93,8 +93,11 @@
                                 </svg>
 
                                 @if ($article->jadwal_tayang)
-                                    <time datetime="{{ $article->jadwal_tayang->toDateString() }}">
-                                        {{ $article->jadwal_tayang->translatedFormat('d F Y') }}
+                                    <time datetime="{{ $article->jadwal_tayang?->toIso8601String() }}"
+                                        class="text-sm text-gray-500">
+                                        {{ $article->jadwal_tayang
+                                            ? $article->jadwal_tayang->timezone(config('app.timezone', 'Asia/Jakarta'))->locale('id')->translatedFormat('l, d F Y')
+                                            : 'Tanggal tidak tersedia' }}
                                     </time>
                                 @else
                                     <span>Tanggal belum tersedia</span>

@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Articles\{Index, Show};
 
 Route::get('/', Index::class)->name('home');
-Route::get('/berita/{slug}', Show::class)->name('articles.show');
+Route::get('/{slug}', Show::class)->name('articles.show');
 
 Route::delete('/admin/konten-medsos/{id}/calendar-delete', function ($id) {
     $konten = KontenMedsos::findOrFail($id);
