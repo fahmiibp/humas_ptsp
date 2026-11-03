@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Timeline extends Model
 {
@@ -49,5 +50,10 @@ class Timeline extends Model
         }
 
         return 'Selesai';
+    }
+
+    public function arsip(): HasMany
+    {
+        return $this->hasMany(Arsip::class, 'id_timeline');
     }
 }

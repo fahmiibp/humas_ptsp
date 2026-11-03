@@ -1,5 +1,9 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+    <x-hot-news-ticker :items="$hotNews" />
+
+    <x-hot-news :items="$hotNews" />
+
     {{-- Header & Search --}}
     <div class="mb-8">
         <div class="relative">
@@ -69,7 +73,7 @@
                             {{-- Category --}}
                             <span
                                 class="inline-flex items-center self-start px-2.5 py-1 rounded-md bg-teal-50 text-teal-600 text-xs font-semibold mb-3">
-                                {{ $article->kategori }}
+                                {{ $article->kategori->nama_kategori ?? 'Kategori tidak tersedia' }}
                             </span>
 
                             {{-- Title --}}
@@ -93,14 +97,14 @@
                                 </svg>
 
                                 @if ($article->jadwal_tayang)
-                                    <time datetime="{{ $article->jadwal_tayang?->toIso8601String() }}"
+                                    <time datetime="{{ $article->jadwal_tayang->toIso8601String() }}"
                                         class="text-sm text-gray-500">
-                                        {{ $article->jadwal_tayang
-                                            ? $article->jadwal_tayang->timezone(config('app.timezone', 'Asia/Jakarta'))->locale('id')->translatedFormat('l, d F Y')
-                                            : 'Tanggal tidak tersedia' }}
+                                        {{ $article->jadwal_tayang->timezone(config('app.timezone', 'Asia/Jakarta'))->locale('id')->diffForHumans() }}
                                     </time>
                                 @else
-                                    <span>Tanggal belum tersedia</span>
+                                    <span class="text-sm text-gray-500">
+                                        Tanggal belum tersedia
+                                    </span>
                                 @endif
                             </div>
 

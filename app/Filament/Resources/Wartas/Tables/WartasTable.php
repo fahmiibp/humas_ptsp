@@ -18,6 +18,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Tables\Columns\IconColumn;
 
 class WartasTable
 {
@@ -60,7 +64,8 @@ class WartasTable
                             TextColumn::make('status_naskah')
                                 ->label('Status Verifikasi')
                                 ->badge()
-                                ->color(fn (?string $state): string => match ($state) {
+                                ->grow(false)
+                                ->color(fn(?string $state): string => match ($state) {
                                     'Draft Penulis' => 'gray',
                                     'Perlu Review Koordinator' => 'warning',
                                     'Perlu Revisi' => 'danger',
@@ -68,6 +73,14 @@ class WartasTable
                                     'Sudah Tayang' => 'info',
                                     default => 'gray',
                                 }),
+
+                            TextColumn::make('is_hot_news')
+                                ->label('Hot News')
+                                ->badge()
+                                ->color('danger')
+                                ->icon('heroicon-m-fire')
+                                ->grow(false)
+                                ->state(fn(Model $record): ?string => $record->isHotNews() ? 'HOT' : null),
 
                             TextColumn::make('jadwal_tayang')
                                 ->label('Jadwal Tayang')
@@ -80,7 +93,7 @@ class WartasTable
                         TextColumn::make('author.name')
                             ->label('Penanggung Jawab')
                             ->formatStateUsing(
-                                fn ($state, $record) => $record->author?->name ?? '-'
+                                fn($state, $record) => $record->author?->name ?? '-'
                             )
                             ->icon('heroicon-m-user')
                             ->color('gray')
@@ -89,7 +102,7 @@ class WartasTable
                         TextColumn::make('timeline.event_name')
                             ->label('Agenda')
                             ->formatStateUsing(
-                                fn ($state, $record) => $record->timeline?->event_name ?? '-'
+                                fn($state, $record) => $record->timeline?->event_name ?? '-'
                             )
                             ->icon('heroicon-m-calendar-days')
                             ->color('gray')
@@ -126,6 +139,7 @@ class WartasTable
                             ->native(false)
                             ->displayFormat('d/m/Y')
                             ->afterOrEqual('dari_tanggal'),
+
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         $dariTanggal = $data['dari_tanggal'] ?? null;
@@ -134,7 +148,7 @@ class WartasTable
                         return $query
                             ->when(
                                 $dariTanggal,
-                                fn (Builder $query) => $query->whereDate(
+                                fn(Builder $query) => $query->whereDate(
                                     'jadwal_tayang',
                                     '>=',
                                     $dariTanggal
@@ -142,7 +156,7 @@ class WartasTable
                             )
                             ->when(
                                 $sampaiTanggal,
-                                fn (Builder $query) => $query->whereDate(
+                                fn(Builder $query) => $query->whereDate(
                                     'jadwal_tayang',
                                     '<=',
                                     $sampaiTanggal
@@ -162,11 +176,16 @@ class WartasTable
 
                         return $indicators;
                     }),
+                Filter::make('hot_news')
+                    ->label('Hanya Hot News')
+                    ->toggle()
+                    ->query(fn(Builder $query): Builder => $query->hotNews()),
             ])
             ->recordActions([
-                // Penulis mengirim naskah atau mengirim ulang setelah revisi.
+
                 Action::make('kirim_review')
-                    ->label(fn (Model $record): string =>
+                    ->label(
+                        fn(Model $record): string =>
                         $record->status_naskah === 'Perlu Revisi'
                             ? 'Kirim Ulang'
                             : 'Kirim ke Verifikator'
@@ -176,16 +195,16 @@ class WartasTable
                     ->requiresConfirmation()
                     ->modalHeading('Kirim naskah untuk verifikasi?')
                     ->modalDescription('Naskah akan masuk ke antrean Verifikator.')
-                    ->visible(fn (Model $record): bool =>
-                        (
+                    ->visible(
+                        fn(Model $record): bool => (
                             Auth::user()?->hasAnyRole(['Penulis', 'super_admin']) ?? false
                         )
-                        && (int) $record->users_id === (int) Auth::id()
-                        && in_array(
-                            $record->status_naskah,
-                            ['Draft Penulis', 'Perlu Revisi'],
-                            true
-                        )
+                            && (int) $record->users_id === (int) Auth::id()
+                            && in_array(
+                                $record->status_naskah,
+                                ['Draft Penulis', 'Perlu Revisi'],
+                                true
+                            )
                     )
                     ->action(function (Model $record): void {
                         $record->update([
@@ -198,74 +217,93 @@ class WartasTable
                             ->success()
                             ->send();
                     }),
-                // Verifikator menyetujui naskah.
-                Action::make('setujui_warta')
-                    ->label('Setujui')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('Setujui Warta ini?')
-                    ->visible(fn (Model $record): bool => (Auth::user()?->hasAnyRole(['Verifikator', 'Koordinator']) ?? false)
-                        && $record->status_naskah === 'Perlu Review Koordinator')
-                    ->action(function (Model $record): void {
-                        $record->update([
-                            'status_naskah' => 'Disetujui',
-                            'reviewed_by' => Auth::id(),
-                            'catatan_koreksi' => null,
-                        ]);
-
-                        Notification::make()->title('Warta disetujui')->success()->send();
-                    }),
-
-                // Verifikator menolak dengan catatan wajib.
-                Action::make('tolak_warta')
-                    ->label('Tolak / Minta Revisi')
-                    ->icon('heroicon-o-arrow-uturn-left')
-                    ->color('danger')
-                    ->form([
-                        Textarea::make('catatan_koreksi')
-                            ->label('Catatan revisi untuk Penulis')
-                            ->placeholder('Jelaskan bagian yang perlu diperbaiki...')
-                            ->required()
-                            ->minLength(5)
-                            ->rows(4),
-                    ])
-                    ->modalHeading('Kembalikan Warta untuk revisi')
-                    ->visible(fn (Model $record): bool => (Auth::user()?->hasAnyRole(['Verifikator', 'Koordinator']) ?? false)
-                        && $record->status_naskah === 'Perlu Review Koordinator')
-                    ->action(function (Model $record, array $data): void {
-                        $record->update([
-                            'status_naskah' => 'Perlu Revisi',
-                            'catatan_koreksi' => $data['catatan_koreksi'],
-                            'reviewed_by' => Auth::id(),
-                        ]);
-
-                        Notification::make()->title('Warta dikembalikan kepada Penulis')->warning()->send();
-                    }),
-
                 // Hanya admin publikasi dapat menerbitkan warta yang disetujui.
                 Action::make('tayangkan_warta')
                     ->label('Publikasikan')
                     ->icon('heroicon-o-globe-alt')
                     ->color('info')
-                    ->requiresConfirmation()
                     ->modalHeading('Publikasikan Warta ini?')
                     ->modalDescription('Warta hanya dapat dipublikasikan setelah disetujui Verifikator.')
-                    ->visible(fn (Model $record): bool => (Auth::user()?->hasAnyRole(['Admin', 'admin', 'super_admin', 'Super Admin', 'Admin Publikasi']) ?? false)
+                    ->modalSubmitAction(fn(Action $action) => $action->color('primary'))
+                    ->form([
+                        Toggle::make('is_hot_news')
+                            ->label('Jadikan Hot News')
+                            ->helperText('Berita akan ditampilkan di bagian Hot News.')
+                            ->live()
+                            ->default(false),
+
+                        DateTimePicker::make('hot_news_until')
+                            ->label('Hot News sampai')
+                            ->helperText('Kosongkan jika tidak ada batas waktu.')
+                            ->native(false)
+                            ->minDate(now())
+                            ->visible(fn(Get $get): bool => (bool) $get('is_hot_news')),
+                    ])
+                    ->visible(fn(Model $record): bool => (Auth::user()?->hasAnyRole(['Admin', 'admin', 'super_admin', 'Super Admin', 'Admin Publikasi']) ?? false)
                         && $record->status_naskah === 'Disetujui')
-                    ->action(function (Model $record): void {
-                        $record->update(['status_naskah' => 'Sudah Tayang']);
+                    ->action(function (Model $record, array $data): void {
+                        $isHot = (bool) ($data['is_hot_news'] ?? false);
+
+                        $record->update([
+                            'status_naskah'  => 'Sudah Tayang',
+                            'is_hot_news'    => $isHot,
+                            'hot_news_until' => $isHot ? ($data['hot_news_until'] ?? null) : null,
+                        ]);
 
                         Notification::make()->title('Warta berhasil dipublikasikan')->success()->send();
                     }),
+                Action::make('atur_hot_news')
+                    ->label(fn(Model $record): string => $record->isHotNews() ? 'Atur / Cabut Hot News' : 'Jadikan Hot News')
+                    ->icon('heroicon-o-fire')
+                    ->color('warning')
+                    ->modalHeading('Atur Hot News')
+                    ->modalSubmitAction(fn(Action $action) => $action->color('primary'))
+                    ->fillForm(fn(Model $record): array => [
+                        'is_hot_news'    => $record->is_hot_news,
+                        'hot_news_until' => $record->hot_news_until,
+                    ])
+                    ->form([
+                        Toggle::make('is_hot_news')
+                            ->label('Hot News')
+                            ->live(),
 
+                        DateTimePicker::make('hot_news_until')
+                            ->label('Hot News sampai')
+                            ->helperText('Kosongkan jika tidak ada batas waktu.')
+                            ->native(false)
+                            ->minDate(now())
+                            ->visible(fn(Get $get): bool => (bool) $get('is_hot_news')),
+                    ])
+                    ->visible(fn(Model $record): bool => (Auth::user()?->hasAnyRole(['Admin', 'admin', 'super_admin', 'Super Admin', 'Admin Publikasi']) ?? false)
+                        && $record->status_naskah === 'Sudah Tayang')
+                    ->action(function (Model $record, array $data): void {
+                        $isHot = (bool) ($data['is_hot_news'] ?? false);
+
+                        $record->update([
+                            'is_hot_news'    => $isHot,
+                            'hot_news_until' => $isHot ? ($data['hot_news_until'] ?? null) : null,
+                        ]);
+
+                        Notification::make()
+                            ->title($isHot ? 'Hot News diaktifkan' : 'Hot News dicabut')
+                            ->success()
+                            ->send();
+                    }),
                 EditAction::make()
                     ->label('Edit')
-                    ->visible(fn (Model $record): bool => (Auth::user()?->hasRole('Penulis') ?? false)
+                    ->visible(fn(Model $record): bool => (Auth::user()?->hasRole('Penulis') ?? false)
                         && (int) $record->users_id === (int) Auth::id()
                         && in_array($record->status_naskah, ['Draft Penulis', 'Perlu Revisi'], true)),
 
                 ViewAction::make()->label('Lihat'),
+                ViewAction::make('preview')
+                    ->label('Buka Berita')
+                    ->url(fn(Model $record): string => route('articles.show', [
+                        'slug' => $record->slug_url,
+                    ]))
+                    ->openUrlInNewTab()
+                    ->icon('heroicon-o-globe-alt')
+                    ->visible(fn(Model $record): bool => $record->status_naskah === 'Sudah Tayang'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([

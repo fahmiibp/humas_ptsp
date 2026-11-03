@@ -18,7 +18,8 @@ class SocialLinksTable
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('url')
-                    ->searchable(),
+                    ->searchable()
+                    ->wrap(),
                 TextColumn::make('icon')
                     ->searchable(),
                 IconColumn::make('is_active')

@@ -19,6 +19,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
 
 class WartaForm
 {
@@ -96,6 +97,12 @@ class WartaForm
                         ->validationMessages([
                             'required' => 'Kategori berita wajib dipilih.',
                         ]),
+                    DatePicker::make('jadwal_tayang')
+                        ->label('Jadwal Tayang')
+                        ->placeholder('Pilih tanggal tayang')
+                        ->native(false)
+                        ->displayFormat('d F Y')
+                        ->required(),
                 ])
                 ->columns(2)
                 ->columnSpanFull()
@@ -105,12 +112,7 @@ class WartaForm
                 ->description('Atur status naskah dan jadwal penayangan.')
                 ->icon('heroicon-o-calendar-days')
                 ->schema([
-                    DatePicker::make('jadwal_tayang')
-                        ->label('Jadwal Tayang')
-                        ->placeholder('Pilih tanggal tayang')
-                        ->native(false)
-                        ->displayFormat('d F Y')
-                        ->required(),
+
 
                     // Opsional. Pastikan kolom timeline_id nullable di migration.
                     Select::make('timeline_id')
@@ -133,7 +135,6 @@ class WartaForm
                     Hidden::make('users_id')
                         ->default(fn() => auth()->id()),
                 ])
-                ->columns(2)
                 ->columnSpanFull(),
 
             Section::make('Konten Berita')
@@ -156,6 +157,7 @@ class WartaForm
                             'h3',
                             'undo',
                             'redo',
+                            ['alignStart', 'alignCenter', 'alignEnd'],
                         ])
                         ->required()
                         ->columnSpanFull()
@@ -256,46 +258,6 @@ class WartaForm
                                 })
                         ),
                 ])
-                ->columnSpanFull(),
-
-            Section::make('Publikasi dan Penjadwalan')
-                ->description(
-                    'Atur status naskah dan jadwal penayangan.'
-                )
-                ->icon('heroicon-o-calendar-days')
-                ->schema([
-                    DatePicker::make('jadwal_tayang')
-                        ->label('Jadwal Tayang')
-                        ->placeholder('Pilih tanggal tayang')
-                        ->native(false)
-                        ->displayFormat('d F Y')
-                        ->required(),
-
-                    Select::make('timeline_id')
-                        ->label('Agenda / Timeline Liputan')
-                        ->relationship(
-                            name: 'timeline',
-                            titleAttribute: 'event_name'
-                        )
-                        ->getOptionLabelFromRecordUsing(
-                            fn(Timeline $record): string => $record->event_name
-                        )
-                        ->searchable()
-                        ->preload()
-                        ->native(false)
-                        ->placeholder('Pilih agenda liputan')
-                        ->helperText(
-                            'Opsional. Pilih agenda jika siaran pers terkait dengan agenda liputan.'
-                        )
-                        ->nullable()
-                        ->required(false)
-                        ->columnSpanFull(),
-
-                    Hidden::make('users_id')
-                        ->default(fn() => auth()->id())
-                        ->required(),
-                ])
-                ->columns(2)
                 ->columnSpanFull(),
 
             Section::make('Dokumentasi dan Cover')

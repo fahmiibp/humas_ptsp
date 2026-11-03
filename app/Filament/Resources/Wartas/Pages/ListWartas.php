@@ -45,7 +45,7 @@ class ListWartas extends ListRecords
                 )
                 ->badgeColor('gray')
                 ->modifyQueryUsing(
-                    fn (Builder $query): Builder => $query->where(
+                    fn(Builder $query): Builder => $query->where(
                         'status_naskah',
                         'Draft Penulis'
                     )
@@ -64,7 +64,7 @@ class ListWartas extends ListRecords
                 )
                 ->badgeColor('warning')
                 ->modifyQueryUsing(
-                    fn (Builder $query): Builder => $query->where(
+                    fn(Builder $query): Builder => $query->where(
                         'status_naskah',
                         'Perlu Review Koordinator'
                     )
@@ -80,7 +80,7 @@ class ListWartas extends ListRecords
                 )
                 ->badgeColor('danger')
                 ->modifyQueryUsing(
-                    fn (Builder $query): Builder => $query->where(
+                    fn(Builder $query): Builder => $query->where(
                         'status_naskah',
                         'Perlu Revisi'
                     )
@@ -96,7 +96,7 @@ class ListWartas extends ListRecords
                 )
                 ->badgeColor('info')
                 ->modifyQueryUsing(
-                    fn (Builder $query): Builder => $query->where(
+                    fn(Builder $query): Builder => $query->where(
                         'status_naskah',
                         'Disetujui'
                     )
@@ -112,7 +112,7 @@ class ListWartas extends ListRecords
                 )
                 ->badgeColor('success')
                 ->modifyQueryUsing(
-                    fn (Builder $query): Builder => $query->where(
+                    fn(Builder $query): Builder => $query->where(
                         'status_naskah',
                         'Sudah Tayang'
                     )

@@ -32,9 +32,9 @@
                 </li>
                 @foreach ($categories as $cat)
                     <li>
-                        <a href="{{ route('home', ['category' => $cat]) }}" wire:navigate
+                        <a href="{{ route('home', ['category' => $cat->slug]) }}" wire:navigate
                             class="text-teal-100 transition hover:text-white">
-                            {{ $cat }}
+                            {{ $cat->nama_kategori }}
                         </a>
                     </li>
                 @endforeach

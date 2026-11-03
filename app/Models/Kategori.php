@@ -17,6 +17,6 @@ class Kategori extends Model
 
     public function wartas(): HasMany
     {
-        return $this->hasMany(Warta::class, 'kategori_id');
+        return $this->hasMany(Warta::class, 'kategori_id', 'id');
     }
 }

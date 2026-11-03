@@ -1,3 +1,6 @@
+@php
+    $authorName = $article->author?->name ?? 'Redaksi PTSP Jawa Tengah';
+@endphp
 <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
 
     {{-- Breadcrumb / Back --}}
@@ -17,23 +20,32 @@
         <div class="flex items-center gap-2 mb-4">
 
             <span
-                class="inline-flex items-center px-2.5 py-1 rounded-md bg-teal-50 text-teal-600 text-xs font-semibold">
-                {{ $article->kategori }}
+                class="inline-flex items-center px-2.5 py-1 rounded-md bg-teal-50 text-teal-600 text-2xl font-semibold">
+                {{ $article->nama_kategori }}
             </span>
-
-            <span class="text-gray-300">•</span>
-
-            <time datetime="{{ $article->jadwal_tayang?->toIso8601String() }}" class="text-sm text-gray-500">
-                {{ $article->jadwal_tayang
-                    ? $article->jadwal_tayang->timezone(config('app.timezone', 'Asia/Jakarta'))->locale('id')->translatedFormat('l, d F Y')
-                    : 'Tanggal tidak tersedia' }}
-            </time>
         </div>
 
         <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight tracking-tight mb-6">
             {{ $article->judul_siaran_pers }}
             <p class="text-teal-700 text-xl font-medium">PTSP Jawa Tengah</p>
         </h1>
+
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-3 mb-6">
+
+            <div class="flex items-center gap-2.5">
+                <div>
+                    <p class="text-sm text-gray-400">Oleh {{ $authorName }}</p>
+                </div>
+            </div>
+
+            <span class="text-gray-300">•</span>
+
+            <time datetime="{{ $article->jadwal_tayang?->toIso8601String() }}" class="text-sm text-gray-400">
+                {{ $article->jadwal_tayang
+                    ? $article->jadwal_tayang->setTimezone('Asia/Jakarta')->locale('id')->translatedFormat('l, d F Y - H:i') . ' WIB'
+                    : 'Tanggal tidak tersedia' }}
+            </time>
+        </div>
 
         <div class="mb-5 flex flex-wrap items-center gap-3">
             <span class="text-sm font-semibold text-gray-700">Bagikan:</span>
@@ -189,7 +201,7 @@
                             </h3>
 
                             <small class="text-xs text-gray-400">
-                                {{ $item->jadwal_tayang?->translatedFormat('d F Y') ?? 'Tanggal tidak tersedia' }}
+                                {{ $item->jadwal_tayang?->locale('id')->translatedFormat('d F Y') ?? 'Tanggal tidak tersedia' }}
                             </small>
 
                         </div>

@@ -1,72 +1,118 @@
 @import "../../../../vendor/filament/filament/resources/css/theme.css";
 
-@source '../../../../app/Filament/**';
-@source '../../../../resources/views/filament/**';
-@source '../../../../resources/views/livewire/**';
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/livewire/**/*';
 
 /* =========================
-   CONTENT CALENDAR CUSTOM
+   DESIGN TOKENS (light/dark)
 ========================= */
-
-.fc {
-    font-family: inherit;
+:root {
+    --cal-bg: #ffffff;
+    --cal-surface: #f8fafc;
+    --cal-border: #e5e7eb;
+    --cal-text: #0f172a;
+    --cal-text-muted: #334155;
+    --cal-accent: #10b981;
+    --cal-accent-dark: #065f46;
+    --cal-accent-soft: #ecfdf5;
+    --cal-link: #0f766e;
 }
 
+.dark {
+    --cal-bg: #18181b;
+    --cal-surface: #27272a;
+    --cal-border: #3f3f46;
+    --cal-text: #f4f4f5;
+    --cal-text-muted: #d4d4d8;
+    --cal-accent: #10b981;
+    --cal-accent-dark: #6ee7b7;
+    --cal-accent-soft: rgba(16, 185, 129, 0.12);
+    --cal-link: #5eead4;
+}
+
+/* =========================
+   CONTENT CALENDAR (FullCalendar v6)
+========================= */
+.fc {
+    font-family: inherit;
+
+    /* Override lewat variabel bawaan FullCalendar, tanpa !important */
+    --fc-page-bg-color: var(--cal-bg);
+    --fc-neutral-bg-color: var(--cal-surface);
+    --fc-border-color: var(--cal-border);
+    --fc-today-bg-color: var(--cal-accent-soft);
+    --fc-button-bg-color: var(--cal-surface);
+    --fc-button-border-color: var(--cal-border);
+    --fc-button-text-color: var(--cal-text);
+    --fc-button-hover-bg-color: var(--cal-accent-soft);
+    --fc-button-hover-border-color: var(--cal-accent);
+    --fc-button-active-bg-color: var(--cal-accent);
+    --fc-button-active-border-color: var(--cal-accent);
+}
+
+/* Toolbar */
 .fc .fc-toolbar {
-    margin-bottom: 1.25rem !important;
+    margin-bottom: 1.25rem;
     padding: 0.75rem 0;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--cal-border);
 }
 
 .fc .fc-toolbar-title {
-    font-size: 1.25rem !important;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--cal-text);
 }
 
+/* Tombol */
 .fc .fc-button {
-    background: #f8fafc !important;
-    border: 1px solid #dbeafe !important;
-    color: #0f172a !important;
-    border-radius: 12px !important;
-    padding: 0.5rem 0.9rem !important;
-    font-weight: 600 !important;
-    box-shadow: none !important;
-    transition: all 0.2s ease;
+    border-radius: 12px;
+    padding: 0.5rem 0.9rem;
+    font-weight: 600;
+    box-shadow: none;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
 }
 
 .fc .fc-button:hover {
-    background: #ecfdf5 !important;
-    border-color: #10b981 !important;
-    color: #065f46 !important;
+    color: var(--cal-accent-dark);
 }
 
 .fc .fc-button.fc-button-active,
-.fc .fc-button:focus {
-    background: #10b981 !important;
-    border-color: #10b981 !important;
-    color: white !important;
-    outline: none !important;
-    box-shadow: none !important;
+.fc .fc-button:active {
+    color: #fff;
 }
 
+.fc .fc-button:focus {
+    box-shadow: none;
+}
+
+.fc .fc-button:focus-visible {
+    outline: 2px solid var(--cal-accent);
+    outline-offset: 2px;
+}
+
+/* Header kolom */
 .fc .fc-col-header-cell {
-    background: #f8fafc;
+    background: var(--cal-surface);
     padding: 0.75rem 0;
 }
 
 .fc .fc-col-header-cell-cushion {
-    color: #334155;
+    color: var(--cal-text-muted);
     font-weight: 700;
-    text-decoration: none !important;
+    text-decoration: none;
 }
 
+/* Sel hari */
 .fc .fc-daygrid-day {
-    transition: background 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
-.fc .fc-daygrid-day:hover {
-    background: #f8fafc;
+.fc .fc-daygrid-day:not(.fc-day-today):hover {
+    background: var(--cal-surface);
 }
 
 .fc .fc-daygrid-day-frame {
@@ -75,30 +121,31 @@
 }
 
 .fc .fc-daygrid-day-number {
-    color: #0f172a;
-    font-weight: 700;
-    text-decoration: none !important;
+    display: inline-block;
     padding: 6px 8px;
     border-radius: 8px;
-}
-
-.fc .fc-day-today {
-    background: #ecfdf5 !important;
+    color: var(--cal-text);
+    font-weight: 700;
+    text-decoration: none;
 }
 
 .fc .fc-day-today .fc-daygrid-day-number {
-    background: #10b981;
-    color: white !important;
+    background: var(--cal-accent);
+    color: #fff;
 }
 
+/* Event */
 .fc .fc-event {
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 2px 6px !important;
-    font-size: 0.75rem !important;
-    font-weight: 600 !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: none;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.08);
     cursor: pointer;
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
 }
 
 .fc .fc-event:hover {
@@ -107,14 +154,13 @@
 }
 
 .fc .fc-daygrid-more-link {
-    color: #0f766e !important;
+    color: var(--cal-link);
     font-weight: 600;
 }
 
 /* =========================
    CUSTOM CALENDAR EVENT
 ========================= */
-
 .calendar-event-custom {
     padding: 3px 5px;
 }
@@ -128,47 +174,36 @@
 .calendar-event-custom .event-time {
     margin-top: 3px;
     font-size: 10px;
-    opacity: 0.85;
     font-weight: 500;
+    opacity: 0.85;
 }
 
 /* =========================
    USER ACTION MENU
 ========================= */
-
 .user-actions-menu {
-    background: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
+    background: transparent;
+    box-shadow: none;
+    border: none;
 }
 
-
-/* Perbaikan layout tombol aksi pada tabel Arsip Dokumentasi */
-.fi-ta-record-actions,
+/* =========================
+   TOMBOL AKSI TABEL (Arsip Dokumentasi)
+========================= */
 .fi-ta-actions {
-    display: flex !important;
-    flex-wrap: wrap !important;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: flex-start;
     gap: 8px;
-    min-width: 0;
     max-width: 100%;
-    box-sizing: border-box;
 }
 
-/* Cegah tombol melebar keluar dari area aksi */
-.fi-ta-record-actions > *,
 .fi-ta-actions > * {
     flex: 0 1 auto;
     min-width: 0;
-    max-width: 100%;
-    box-sizing: border-box;
 }
 
-/* Jaga agar label tombol tidak memaksakan lebar */
-.fi-ta-record-actions button,
-.fi-ta-actions button,
-.fi-ta-record-actions a,
-.fi-ta-actions a {
+.fi-ta-actions :is(button, a) {
     white-space: nowrap;
 }
