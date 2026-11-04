@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Wartas\Schemas;
 
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -10,6 +11,7 @@ use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Str;
+use Filament\Infolists\Components\ViewEntry;
 
 class WartaInfolist
 {
@@ -21,8 +23,6 @@ class WartaInfolist
 
                 /*
                  * CATATAN KOREKSI
-                 * Ditampilkan paling atas jika verifikator
-                 * memberikan catatan untuk penulis.
                  */
                 Section::make('Catatan Koreksi dari Verifikator')
                     ->description(
@@ -87,7 +87,8 @@ class WartaInfolist
                                     'disetujui',
                                     'published',
                                     'terbit',
-                                    'tayang' => 'success',
+                                    'tayang',
+                                    'sudah_tayang' => 'success',
 
                                     'scheduled',
                                     'dijadwalkan' => 'primary',
@@ -113,6 +114,48 @@ class WartaInfolist
                             )
                             ->columnSpanFull(),
                     ]),
+                /*
+                * GALERI DOKUMENTASI WARTA
+                */
+                Section::make('Dokumentasi Warta')
+                    ->description('Foto dokumentasi yang dilampirkan pada naskah berita.')
+                    ->icon(Heroicon::DocumentText)
+                    ->visible(function ($record): bool {
+                        $images = $record?->dokumentasi_utama;
+
+                        if (is_string($images)) {
+                            $decoded = json_decode($images, true);
+                            $images = is_array($decoded) ? $decoded : [$images];
+                        }
+
+                        return is_array($images)
+                            && count(array_filter($images)) > 0;
+                    })
+                    ->schema([
+                        ViewEntry::make('dokumentasi_utama')
+                            ->hiddenLabel()
+                            ->state(function ($record): array {
+                                $images = $record->dokumentasi_utama;
+
+                                if (is_string($images)) {
+                                    $decoded = json_decode($images, true);
+                                    $images = is_array($decoded) ? $decoded : [$images];
+                                }
+
+                                if (! is_array($images)) {
+                                    return [];
+                                }
+
+                                return array_slice(
+                                    array_values(array_filter($images)),
+                                    0,
+                                    5
+                                );
+                            })
+                            ->view('filament.resources.warta.infolist-dokumentasi')
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpanFull(),
 
                 /*
                  * ISI BERITA DAN SIDEBAR
@@ -145,6 +188,9 @@ class WartaInfolist
                         Grid::make(1)
                             ->schema([
 
+                                /*
+                                 * INFORMASI PUBLIKASI
+                                 */
                                 Section::make('Informasi Publikasi')
                                     ->icon(Heroicon::CalendarDays)
                                     ->compact()
@@ -173,6 +219,9 @@ class WartaInfolist
                                             ->placeholder('-'),
                                     ]),
 
+                                /*
+                                 * RIWAYAT AKTIVITAS
+                                 */
                                 Section::make('Riwayat Aktivitas')
                                     ->icon(Heroicon::Clock)
                                     ->compact()
@@ -198,6 +247,9 @@ class WartaInfolist
                                             ->placeholder('-'),
                                     ]),
 
+                                /*
+                                 * INFORMASI SISTEM
+                                 */
                                 Section::make('Informasi Sistem')
                                     ->description(
                                         'Referensi internal naskah.'

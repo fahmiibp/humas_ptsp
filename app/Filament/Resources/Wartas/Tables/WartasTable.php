@@ -22,6 +22,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\DeleteAction;
 
 class WartasTable
 {
@@ -33,16 +34,39 @@ class WartasTable
                 'xl' => 3,
             ])
             ->columns([
-                ImageColumn::make('dokumentasi_utama')
-                    ->extraAttributes([
-                        'class' => '-mx-4 -mt-4 mb-3 w-[calc(100%+2rem)] max-w-none overflow-hidden rounded-t-xl',
-                    ])
-                    ->disk('public')
-                    ->extraImgAttributes([
-                        'class' => 'object-cover w-full',
-                        'style' => 'width: 100% !important; height: 220px !important; display: block;',
-                    ])
-                    ->defaultImageUrl(url('/images/placeholder-news.png')),
+                
+            ImageColumn::make('dokumentasi_utama')
+                ->label('Cover Foto')
+                ->state(function ($record) {
+                    $images = $record->dokumentasi_utama;
+
+                    // Mendukung data baru berupa array dan data lama berupa string.
+                    if (is_string($images)) {
+                        $decoded = json_decode($images, true);
+
+                        $images = is_array($decoded)
+                            ? $decoded
+                            : [$images];
+                    }
+
+                    if (! is_array($images)) {
+                        return null;
+                    }
+
+                    // Tampilkan gambar pertama sebagai cover kartu.
+                    return array_values(array_filter($images))[0] ?? null;
+                })
+                ->extraAttributes([
+                    'class' => '-mx-4 -mt-4 mb-3 w-[calc(100%+2rem)] max-w-none overflow-hidden rounded-t-xl',
+                ])
+                ->disk('public')
+                ->extraImgAttributes([
+                    'class' => 'object-cover w-full',
+                    'style' => 'width: 100% !important; height: 220px !important; display: block;',
+                ])
+                ->defaultImageUrl(url('/images/placeholder-news.png')),
+
+
 
                 Split::make([
                     Stack::make([
@@ -304,6 +328,20 @@ class WartasTable
                     ->openUrlInNewTab()
                     ->icon('heroicon-o-globe-alt')
                     ->visible(fn(Model $record): bool => $record->status_naskah === 'Sudah Tayang'),
+                DeleteAction::make()
+                    ->label('Hapus Warta')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Warta yang Sudah Dipublikasikan')
+                    ->modalDescription(
+                        'Apakah kamu yakin ingin menghapus warta ini? Berita yang dihapus tidak akan tersedia lagi di halaman frontend.'
+                    )
+                    ->modalSubmitActionLabel('Ya, Hapus Warta')
+                    ->visible(
+                        fn (Model $record): bool =>
+                            $record->status_naskah === 'Sudah Tayang'
+                    ),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
