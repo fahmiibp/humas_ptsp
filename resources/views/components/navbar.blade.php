@@ -19,7 +19,7 @@
                 </svg>
                 {{ now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('l, j F Y') }}
             </span>
-            <span class="font-medium text-teal-600">Berita Terverifikasi</span>
+            <span class="font-medium text-teal-600">PTSP Jawa Tengah</span>
         </div>
     </div>
 
