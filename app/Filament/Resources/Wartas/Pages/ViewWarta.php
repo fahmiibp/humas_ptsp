@@ -15,18 +15,22 @@ class ViewWarta extends ViewRecord
 {
     protected static string $resource = WartaResource::class;
 
+    /**
+     * Menampilkan galeri dokumentasi pada halaman View Warta.
+     */
+
+
     protected function getHeaderActions(): array
     {
         return [
             // Edit hanya untuk penulis pemilik naskah
-            // yang berstatus Draft Penulis atau Perlu Revisi.
-
+            // dengan status Draft Penulis atau Perlu Revisi.
             Action::make('editWarta')
                 ->label('Edit Warta')
                 ->icon('heroicon-o-pencil-square')
                 ->color('primary')
                 ->button()
-                ->url(fn(): string => WartaResource::getUrl('edit', [
+                ->url(fn (): string => WartaResource::getUrl('edit', [
                     'record' => $this->getRecord(),
                 ]))
                 ->visible(function (): bool {
@@ -42,7 +46,6 @@ class ViewWarta extends ViewRecord
                         );
                 }),
 
-
             // Alur verifikasi tetap dipertahankan.
             Action::make('verifikasi')
                 ->label('Verifikasi Naskah')
@@ -52,14 +55,12 @@ class ViewWarta extends ViewRecord
                     $user = Auth::user();
                     $record = $this->getRecord();
 
-                    return (
-                        $user?->hasAnyRole([
-                            'Verifikator',
-                            'Koordinator',
-                        ]) ?? false
-                    )
+                    return ($user?->hasAnyRole([
+                        'Verifikator',
+                        'Koordinator',
+                    ]) ?? false)
                         && $record->status_naskah
-                        === 'Perlu Review Koordinator';
+                            === 'Perlu Review Koordinator';
                 })
                 ->form([
                     Select::make('status_naskah')
@@ -79,8 +80,8 @@ class ViewWarta extends ViewRecord
                         )
                         ->rows(4)
                         ->required(
-                            fn($get): bool =>
-                            $get('status_naskah') === 'Perlu Revisi'
+                            fn ($get): bool =>
+                                $get('status_naskah') === 'Perlu Revisi'
                         ),
                 ])
                 ->action(function (
@@ -92,9 +93,9 @@ class ViewWarta extends ViewRecord
                     $record->update([
                         'status_naskah' => $status,
                         'catatan_koreksi' =>
-                        $status === 'Perlu Revisi'
-                            ? ($data['catatan_koreksi'] ?? null)
-                            : null,
+                            $status === 'Perlu Revisi'
+                                ? ($data['catatan_koreksi'] ?? null)
+                                : null,
                         'reviewed_by' => Auth::id(),
                     ]);
                 }),
