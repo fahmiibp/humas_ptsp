@@ -197,7 +197,7 @@ class WartasTable
                     ->modalDescription('Naskah akan masuk ke antrean Verifikator.')
                     ->visible(
                         fn(Model $record): bool => (
-                            Auth::user()?->hasAnyRole(['Penulis', 'super_admin']) ?? false
+                            Auth::user()?->hasAnyRole(['penulis', 'Penulis', 'super_admin']) ?? false
                         )
                             && (int) $record->users_id === (int) Auth::id()
                             && in_array(
@@ -291,7 +291,7 @@ class WartasTable
                     }),
                 EditAction::make()
                     ->label('Edit')
-                    ->visible(fn(Model $record): bool => (Auth::user()?->hasRole('Penulis') ?? false)
+                    ->visible(fn(Model $record): bool => (Auth::user()?->hasAnyRole(['penulis', 'Penulis']) ?? false)
                         && (int) $record->users_id === (int) Auth::id()
                         && in_array($record->status_naskah, ['Draft Penulis', 'Perlu Revisi'], true)),
 

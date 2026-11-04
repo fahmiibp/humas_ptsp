@@ -17,6 +17,7 @@
     </style>
 </head>
 
+
 <body class="bg-gray-50 text-gray-900 antialiased">
 
     <x-navbar />
@@ -28,6 +29,8 @@
     <x-footer />
 
     @livewireScripts
+
+    <x-back-to-top />
 </body>
 
 </html>

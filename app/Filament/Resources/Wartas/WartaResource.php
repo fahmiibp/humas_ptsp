@@ -54,11 +54,14 @@ class WartaResource extends Resource
             return $query;
         }
 
-        if ($user->hasAnyRole(['Verifikator', 'Koordinator'])) {
-            return $query->where('status_naskah', 'Perlu Review Koordinator');
+        if ($user->hasAnyRole(['verifikator', 'Verifikator', 'Koordinator'])) {
+            return $query->where(function (Builder $q) use ($user) {
+                $q->where('status_naskah', 'Perlu Review Koordinator')
+                    ->orWhere('reviewed_by', $user->getKey());
+            });
         }
 
-        if ($user->hasRole('Penulis')) {
+        if ($user->hasAnyRole(['Penulis', 'penulis'])) {
             return $query->where('users_id', $user->getKey());
         }
 
@@ -69,6 +72,7 @@ class WartaResource extends Resource
     {
         return Auth::user()?->hasAnyRole([
             'Penulis',
+            'penulis',
             'Admin',
             'admin',
             'super_admin',

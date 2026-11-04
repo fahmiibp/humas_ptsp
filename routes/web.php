@@ -3,7 +3,7 @@
 use App\Models\KontenMedsos;
 use App\Http\Controllers\SiaranPersController;
 use Illuminate\Support\Facades\Route;
-use App\Livewire\Articles\{Index, Show};
+use App\Livewire\Articles\{Index, Show, Category};
 
 Route::get('/', Index::class)->name('home');
 Route::get('/{slug}', Show::class)->name('articles.show');

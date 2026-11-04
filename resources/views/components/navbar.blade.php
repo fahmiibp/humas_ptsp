@@ -8,6 +8,21 @@
 
 <header x-data="{ open: false }" class="sticky top-0 z-50 bg-white/95 backdrop-blur">
 
+    {{-- Bar Tanggal --}}
+    <div class="hidden border-b border-gray-100 bg-gray-50 md:block">
+        <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-1.5 text-xs text-gray-500">
+            <span class="inline-flex items-center gap-1.5">
+                <svg class="h-3.5 w-3.5 text-teal-500" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z" />
+                </svg>
+                {{ now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('l, j F Y') }}
+            </span>
+            <span class="font-medium text-teal-600">Berita Terverifikasi</span>
+        </div>
+    </div>
+
     {{-- Bar Atas --}}
     <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
 

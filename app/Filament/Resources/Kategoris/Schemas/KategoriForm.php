@@ -2,8 +2,13 @@
 
 namespace App\Filament\Resources\Kategoris\Schemas;
 
-use Filament\Forms\Components\TextInput;
+use App\Ai\Agents\PenulisDeskripsiKategori;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
@@ -19,10 +24,7 @@ class KategoriForm
                     ->required()
                     ->maxLength(255)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(function (
-                        ?string $state,
-                        callable $set
-                    ): void {
+                    ->afterStateUpdated(function (?string $state, Set $set): void {
                         $set('slug', Str::slug($state ?? ''));
                     })
                     ->validationMessages([
@@ -49,8 +51,48 @@ class KategoriForm
                 Textarea::make('deskripsi')
                     ->label('Deskripsi')
                     ->placeholder('Masukkan deskripsi kategori (opsional)')
+                    ->helperText('Tampil di halaman kategori dan sebagai meta description.')
                     ->rows(3)
-                    ->columnSpanFull(),
+                    ->maxLength(300)
+                    ->columnSpanFull()
+                    ->hintAction(
+                        Action::make('deskripsi_ai')
+                            ->label('Buat dengan AI')
+                            ->icon('heroicon-o-sparkles')
+                            ->action(function (Get $get, Set $set): void {
+                                $nama = trim((string) $get('nama_kategori'));
+
+                                if ($nama === '') {
+                                    Notification::make()
+                                        ->title('Isi nama kategori dulu')
+                                        ->warning()
+                                        ->send();
+
+                                    return;
+                                }
+
+                                try {
+                                    $hasil = (new PenulisDeskripsiKategori)->prompt(
+                                        'Buat deskripsi untuk kategori berita bernama: ' . mb_substr($nama, 0, 100)
+                                    );
+
+                                    $set('deskripsi', mb_substr(trim((string) $hasil), 0, 300));
+
+                                    Notification::make()
+                                        ->title('Deskripsi terisi')
+                                        ->body('Periksa dan sesuaikan sebelum disimpan.')
+                                        ->success()
+                                        ->send();
+                                } catch (\Throwable $e) {
+                                    report($e);
+
+                                    Notification::make()
+                                        ->title('AI sedang tidak tersedia')
+                                        ->danger()
+                                        ->send();
+                                }
+                            })
+                    ),
             ]);
     }
 }

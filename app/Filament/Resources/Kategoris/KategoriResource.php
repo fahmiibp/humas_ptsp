@@ -15,16 +15,24 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class KategoriResource extends Resource
 {
     protected static ?string $model = Kategori::class;
 
-    protected static ?string $navigationLabel = 'Kategori';
+    protected static ?string $navigationLabel = 'Kategori Warta';
+
+    protected static ?string $pluralModelLabel = 'Daftar Kategori Warta';
+
+    protected static string | UnitEnum | null $navigationGroup = 'Produksi Konten';
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
 
     protected static ?string $recordTitleAttribute = 'nama_kategori';
+
+    protected static ?string $slug = 'kategori-warta';
+
 
     public static function form(Schema $schema): Schema
     {

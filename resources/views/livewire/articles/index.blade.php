@@ -4,6 +4,8 @@
 
     <x-hot-news :items="$hotNews" />
 
+    {{-- <livewire:articles.tanya-berita /> --}}
+
     {{-- Header & Search --}}
     <div class="mb-8">
         <div class="relative">
