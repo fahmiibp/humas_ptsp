@@ -128,19 +128,76 @@
     </header>
 
     {{-- Featured Image --}}
+    {{-- Slider Dokumentasi --}}
     @php
-        $thumbnail = $article->dokumentasi_utama;
-
-        if (is_array($thumbnail)) {
-            $thumbnail = $thumbnail[0] ?? null;
-        }
+        $fotoSlide = collect((array) $article->dokumentasi_utama)
+            ->filter()
+            ->map(fn($p) => \Illuminate\Support\Facades\Storage::url($p))
+            ->values();
     @endphp
 
-    @if ($thumbnail)
-        <figure class="mb-8 -mx-4 sm:mx-0">
-            <div class="aspect-video overflow-hidden rounded-none sm:rounded-2xl bg-gray-100">
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($thumbnail) }}"
-                    alt="{{ $article->judul_siaran_pers }}" class="w-full h-full object-cover">
+    @if ($fotoSlide->isNotEmpty())
+        <figure class="mb-8 -mx-4 sm:mx-0" x-data="{
+            i: 0,
+            urls: @js($fotoSlide),
+            startX: 0,
+            timer: null,
+            next() { this.i = (this.i + 1) % this.urls.length },
+            prev() { this.i = (this.i - 1 + this.urls.length) % this.urls.length },
+            play() { if (this.urls.length > 1) this.timer = setInterval(() => this.next(), 5000) },
+            stop() { clearInterval(this.timer) }
+        }" x-init="play()" x-on:mouseenter="stop()"
+            x-on:mouseleave="play()" x-on:keydown.arrow-right="next()" x-on:keydown.arrow-left="prev()"
+            x-on:touchstart.passive="startX = $event.touches[0].clientX"
+            x-on:touchend="const d = $event.changedTouches[0].clientX - startX; if (Math.abs(d) > 50) { d < 0 ? next() : prev() }"
+            tabindex="0" role="region" aria-roledescription="carousel" aria-label="Dokumentasi berita">
+
+            <div class="relative overflow-hidden rounded-none bg-gray-100 sm:rounded-2xl">
+
+                {{-- Track --}}
+                <div class="flex transition-transform duration-500 ease-out"
+                    :style="`transform: translateX(-${i * 100}%)`">
+                    @foreach ($fotoSlide as $idx => $url)
+                        <div class="aspect-video w-full shrink-0">
+                            <img src="{{ $url }}"
+                                alt="Dokumentasi {{ $idx + 1 }} - {{ $article->judul_siaran_pers }}"
+                                @if ($idx > 0) loading="lazy" @endif
+                                class="h-full w-full object-cover">
+                        </div>
+                    @endforeach
+                </div>
+
+                @if ($fotoSlide->count() > 1)
+                    {{-- Panah --}}
+                    <button type="button" x-on:click="prev()" aria-label="Sebelumnya"
+                        class="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-teal-700 shadow transition hover:bg-white">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button type="button" x-on:click="next()" aria-label="Berikutnya"
+                        class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-teal-700 shadow transition hover:bg-white">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+
+                    {{-- Penghitung --}}
+                    <span
+                        class="absolute right-3 top-3 rounded-md bg-black/50 px-2 py-1 text-xs font-medium text-white"
+                        x-text="(i + 1) + ' / ' + urls.length"></span>
+
+                    {{-- Titik --}}
+                    <div class="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
+                        <template x-for="(u, idx) in urls" :key="idx">
+                            <button type="button" x-on:click="i = idx" :aria-label="'Foto ' + (idx + 1)"
+                                class="h-2 rounded-full transition-all"
+                                :class="i === idx ? 'w-5 bg-white' : 'w-2 bg-white/50 hover:bg-white/80'"></button>
+                        </template>
+                    </div>
+                @endif
             </div>
         </figure>
     @endif
