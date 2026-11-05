@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Wartas\Schemas;
 
 use App\Ai\Agents\PenulisBerita;
+use App\Models\Kategori;
 use App\Models\Timeline;
 use App\Models\Warta;
-use App\Models\Kategori;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -19,8 +19,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 class WartaForm
 {
@@ -30,7 +30,7 @@ class WartaForm
 
             /*
             |--------------------------------------------------------------------------
-            | Informasi Warta
+            | INFORMASI WARTA
             |--------------------------------------------------------------------------
             */
 
@@ -38,6 +38,7 @@ class WartaForm
                 ->description('Lengkapi informasi utama siaran pers.')
                 ->icon('heroicon-o-document-text')
                 ->schema([
+
                     TextInput::make('judul_siaran_pers')
                         ->label('Judul Siaran Pers')
                         ->placeholder('Masukkan judul siaran pers')
@@ -49,12 +50,30 @@ class WartaForm
                             Set $set,
                             Get $get
                         ): void {
-                            // Buat slug otomatis hanya jika slug masih kosong
-                            // atau sama dengan slug judul sebelumnya.
-                            $currentSlug = $get('slug_url');
+                            /*
+                             * Buat slug otomatis hanya jika slug
+                             * masih kosong.
+                             */
+                            if (blank($get('slug_url'))) {
+                                $set(
+                                    'slug_url',
+                                    Str::slug($state ?? '')
+                                );
+                            }
 
-                            if (blank($currentSlug)) {
-                                $set('slug_url', Str::slug($state ?? ''));
+                            /*
+                             * Jika Meta Title masih kosong,
+                             * gunakan judul berita sebagai default SEO.
+                             */
+                            if (blank($get('meta_title'))) {
+                                $set(
+                                    'meta_title',
+                                    Str::limit(
+                                        trim((string) $state),
+                                        60,
+                                        ''
+                                    )
+                                );
                             }
                         })
                         ->columnSpanFull(),
@@ -85,7 +104,99 @@ class WartaForm
                         )
                         ->required()
                         ->maxLength(500)
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(function (
+                            ?string $state,
+                            Set $set,
+                            Get $get
+                        ): void {
+                            /*
+                             * Jika Meta Description masih kosong,
+                             * gunakan Lead Berita sebagai default.
+                             */
+                            if (blank($get('meta_description'))) {
+                                $set(
+                                    'meta_description',
+                                    Str::limit(
+                                        trim((string) $state),
+                                        160,
+                                        ''
+                                    )
+                                );
+                            }
+                        })
                         ->columnSpanFull(),
+
+                ])
+                ->columns(2)
+                ->columnSpanFull()
+                ->collapsible(),
+
+            /*
+            |--------------------------------------------------------------------------
+            | SEO
+            |--------------------------------------------------------------------------
+            */
+
+            Section::make('Optimasi SEO')
+                ->description(
+                    'Optimalkan informasi berita agar lebih mudah ditemukan melalui mesin pencari.'
+                )
+                ->icon('heroicon-o-magnifying-glass')
+                ->schema([
+
+                    TextInput::make('meta_title')
+                        ->label('Meta Title')
+                        ->placeholder(
+                            'Contoh: DPMPTSP Jateng Catat Realisasi Investasi 2026'
+                        )
+                        ->maxLength(60)
+                        ->live(onBlur: true)
+                        ->helperText(
+                            'Judul yang digunakan mesin pencari. Disarankan maksimal 60 karakter.'
+                        )
+                        ->columnSpanFull(),
+
+                    Textarea::make('meta_description')
+                        ->label('Meta Description')
+                        ->placeholder(
+                            'Tuliskan ringkasan singkat dan menarik mengenai isi berita...'
+                        )
+                        ->rows(4)
+                        ->maxLength(160)
+                        ->helperText(
+                            'Deskripsi singkat untuk mesin pencari. Disarankan maksimal 160 karakter.'
+                        )
+                        ->columnSpanFull(),
+
+                    TextInput::make('meta_keywords')
+                        ->label('Meta Keywords')
+                        ->placeholder(
+                            'investasi, DPMPTSP, Jawa Tengah, realisasi investasi'
+                        )
+                        ->maxLength(500)
+                        ->helperText(
+                            'Masukkan kata kunci yang relevan dan pisahkan dengan koma.'
+                        )
+                        ->columnSpanFull(),
+
+                ])
+                ->columns(2)
+                ->columnSpanFull()
+                ->collapsible(),
+
+            /*
+            |--------------------------------------------------------------------------
+            | PUBLIKASI DAN PENJADWALAN
+            |--------------------------------------------------------------------------
+            */
+
+            Section::make('Publikasi dan Penjadwalan')
+                ->description(
+                    'Atur kategori, jadwal tayang, agenda liputan, dan penanggung jawab berita.'
+                )
+                ->icon('heroicon-o-calendar-days')
+                ->schema([
 
                     Select::make('kategori_id')
                         ->label('Kategori Berita')
@@ -101,7 +212,8 @@ class WartaForm
                         ->preload()
                         ->required()
                         ->validationMessages([
-                            'required' => 'Kategori berita wajib dipilih.',
+                            'required' =>
+                                'Kategori berita wajib dipilih.',
                         ]),
 
                     DatePicker::make('jadwal_tayang')
@@ -109,22 +221,11 @@ class WartaForm
                         ->placeholder('Pilih tanggal tayang')
                         ->native(false)
                         ->displayFormat('d F Y')
-                        ->required(),
-                ])
-                ->columns(2)
-                ->columnSpanFull()
-                ->collapsible(),
+                        ->required()
+                        ->helperText(
+                            'Tentukan tanggal publikasi berita.'
+                        ),
 
-            /*
-            |--------------------------------------------------------------------------
-            | Publikasi dan Penjadwalan
-            |--------------------------------------------------------------------------
-            */
-
-            Section::make('Publikasi dan Penjadwalan')
-                ->description('Atur agenda liputan dan penanggung jawab berita.')
-                ->icon('heroicon-o-calendar-days')
-                ->schema([
                     Select::make('timeline_id')
                         ->label('Agenda / Timeline Liputan')
                         ->relationship(
@@ -132,26 +233,28 @@ class WartaForm
                             titleAttribute: 'event_name'
                         )
                         ->getOptionLabelFromRecordUsing(
-                            fn (Timeline $record): string => $record->event_name
+                            fn (Timeline $record): string =>
+                                $record->event_name
                         )
                         ->searchable()
                         ->preload()
                         ->native(false)
                         ->placeholder('Pilih agenda liputan')
                         ->helperText(
-                            'Pilih agenda yang terkait dengan siaran pers ini. Boleh dikosongkan jika tidak terkait agenda.'
+                            'Opsional. Pilih agenda yang terkait dengan siaran pers ini.'
                         )
                         ->nullable(),
 
                     Hidden::make('users_id')
                         ->default(fn () => auth()->id()),
+
                 ])
-                ->columns(2)
+                ->columns(3)
                 ->columnSpanFull(),
 
             /*
             |--------------------------------------------------------------------------
-            | Konten Berita
+            | KONTEN BERITA
             |--------------------------------------------------------------------------
             */
 
@@ -161,6 +264,7 @@ class WartaForm
                 )
                 ->icon('heroicon-o-pencil-square')
                 ->schema([
+
                     RichEditor::make('badan_berita')
                         ->label('Isi Berita')
                         ->required()
@@ -175,13 +279,20 @@ class WartaForm
                             'h3',
                             'undo',
                             'redo',
-                            ['alignStart', 'alignCenter', 'alignEnd'],
+                            [
+                                'alignStart',
+                                'alignCenter',
+                                'alignEnd',
+                            ],
                         ])
                         ->hintAction(
                             Action::make('generateNewsContent')
                                 ->label('Buat dengan AI')
                                 ->icon('heroicon-o-sparkles')
-                                ->action(function (Get $get, Set $set): void {
+                                ->action(function (
+                                    Get $get,
+                                    Set $set
+                                ): void {
                                     $judul = $get('judul_siaran_pers');
                                     $lead = $get('lead_berita');
 
@@ -228,13 +339,19 @@ class WartaForm
 Tulis HANYA badan berita, tanpa judul dan tanpa lead, berdasarkan bahan berikut.
 
 Judul: {$judul}
+
 Lead: {$lead}
+
 Jadwal tayang (tanggal publikasi, bukan tanggal kegiatan): {$jadwalTayang}
+
 Agenda liputan (konteks saja): {$namaAgenda}
 
 Gunakan struktur piramida terbalik.
+
 Jangan mengulang judul dan lead secara verbatim.
+
 Jika informasi terbatas, tulis ringkas sesuai fakta.
+
 Pisahkan paragraf dengan satu baris kosong.
 PROMPT;
 
@@ -256,18 +373,48 @@ PROMPT;
                                         }
 
                                         $html = collect(
-                                            preg_split('/\R{2,}/', $hasil)
+                                            preg_split(
+                                                '/\R{2,}/',
+                                                $hasil
+                                            )
                                         )
-                                            ->map(fn ($p) => trim($p))
+                                            ->map(
+                                                fn ($p) => trim($p)
+                                            )
                                             ->filter()
                                             ->map(
-                                                fn ($p) => '<p>'
+                                                fn ($p) =>
+                                                    '<p>'
                                                     . nl2br(e($p))
                                                     . '</p>'
                                             )
                                             ->implode('');
 
-                                        $set('badan_berita', $html);
+                                        $set(
+                                            'badan_berita',
+                                            $html
+                                        );
+
+                                        /*
+                                         * Jika Meta Description kosong,
+                                         * otomatis ambil dari Lead.
+                                         */
+                                        if (
+                                            blank(
+                                                $get('meta_description')
+                                            )
+                                        ) {
+                                            $set(
+                                                'meta_description',
+                                                Str::limit(
+                                                    strip_tags(
+                                                        (string) $lead
+                                                    ),
+                                                    160,
+                                                    ''
+                                                )
+                                            );
+                                        }
 
                                         Notification::make()
                                             ->title(
@@ -293,12 +440,13 @@ PROMPT;
                                     }
                                 })
                         ),
+
                 ])
                 ->columnSpanFull(),
 
             /*
             |--------------------------------------------------------------------------
-            | Dokumentasi dan Cover
+            | DOKUMENTASI DAN COVER
             |--------------------------------------------------------------------------
             */
 
@@ -308,6 +456,7 @@ PROMPT;
                 )
                 ->icon('heroicon-o-photo')
                 ->schema([
+
                     FileUpload::make('dokumentasi_utama')
                         ->label('Dokumentasi Gambar')
                         ->image()
@@ -330,9 +479,11 @@ PROMPT;
                         )
                         ->required()
                         ->columnSpanFull(),
+
                 ])
                 ->columnSpanFull()
                 ->collapsible(),
+
         ]);
     }
 }
