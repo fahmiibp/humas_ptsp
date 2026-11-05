@@ -10,7 +10,7 @@
 
     {{-- Bar Tanggal --}}
     <div class="hidden border-b border-gray-100 bg-gray-50 md:block">
-        <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-1.5 text-xs text-gray-500">
+        <div class="mx-auto flex max-w-6xl 2xl:max-w-[1600px] items-center justify-between px-4 py-1.5 text-xs text-gray-500">
             <span class="inline-flex items-center gap-1.5">
                 <svg class="h-3.5 w-3.5 text-teal-500" fill="none" stroke="currentColor" stroke-width="2"
                     viewBox="0 0 24 24">
@@ -24,7 +24,7 @@
     </div>
 
     {{-- Bar Atas --}}
-    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+    <div class="mx-auto flex h-16 max-w-6xl 2xl:max-w-[1600px] items-center justify-between px-4">
 
         {{-- Logo --}}
         <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2">
@@ -80,9 +80,9 @@
     </div>
 
     {{-- Navigasi Kategori Desktop --}}
-    <nav class="mx-auto hidden max-w-6xl bg-teal-500 md:block">
+    <nav class="mx-auto hidden max-w-6xl 2xl:max-w-[1600px] bg-teal-500 md:block">
 
-        <ul class="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 text-sm font-medium">
+        <ul class="mx-auto flex max-w-6xl 2xl:max-w-[1600px] gap-1 overflow-x-auto px-4 text-sm font-medium">
 
             {{-- Beranda --}}
             <li>

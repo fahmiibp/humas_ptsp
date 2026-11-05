@@ -22,7 +22,7 @@
 
     <x-navbar />
 
-    <main class="mx-auto max-w-6xl px-4 py-6">
+    <main class="mx-auto max-w-6xl 2xl:max-w-[1600px] px-8 py-6">
         {{ $slot }}
     </main>
 
