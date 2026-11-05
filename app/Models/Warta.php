@@ -13,18 +13,17 @@ class Warta extends Model
     protected $fillable = [
         'judul_siaran_pers',
         'slug_url',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
         'lead_berita',
         'badan_berita',
-        'kategori_id',
         'status_naskah',
         'jadwal_tayang',
         'catatan_koreksi',
         'timeline_id',
         'users_id',
-        'reviewed_by',
         'dokumentasi_utama',
-        'is_hot_news',
-        'hot_news_until',
     ];
 
     protected function casts(): array
