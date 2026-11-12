@@ -188,28 +188,6 @@
                     </div>
 
                 </li>
-
-                {{-- Hot News --}}
-                <li>
-                    <a href="{{ route('home', ['hot' => 1]) }}"
-                        wire:navigate
-                        class="block whitespace-nowrap px-4 py-3 text-white transition hover:bg-teal-700">
-
-                        <span class="inline-flex items-center gap-1.5">
-                            <svg class="h-4 w-4 text-red-300"
-                                fill="currentColor"
-                                viewBox="0 0 24 24">
-
-                                <path d="M13.5 2.5s.5 4.5-2.5 6.5c-1.5-2-1.5-4-1.5-4S5 8 5 13a7 7 0 0 0 14 0c0-3.5-2-6.5-5.5-10.5Z" />
-
-                            </svg>
-
-                            Hot News
-                        </span>
-
-                    </a>
-                </li>
-
                 {{-- FAQ --}}
                 <li>
                     <a

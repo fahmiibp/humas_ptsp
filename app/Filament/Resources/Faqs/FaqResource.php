@@ -31,7 +31,7 @@ class FaqResource extends Resource
         Heroicon::OutlinedQuestionMarkCircle;
 
     protected static string | UnitEnum | null $navigationGroup =
-        'Dokumentasi & Publikasi';
+        'Informasi & Bantuan';
 
     public static function form(Schema $schema): Schema
     {

@@ -6,6 +6,11 @@
 
     {{-- <livewire:articles.tanya-berita /> --}}
 
+    {{-- =========================
+    PORTAL & LAYANAN TERKAIT
+========================== --}}
+
+
     {{-- Header & Search --}}
     <div class="mb-8">
         <div class="relative">
@@ -149,4 +154,517 @@
         @endif
 
     </div>
+
+    <hr class="text-gray-200 my-10">
+
+    {{-- Portal & Layanan Terkait --}}
+
+    @if ($portalLinks->isNotEmpty())
+
+    <section class="mb-10">
+
+        {{-- =========================
+            HEADER SECTION
+        ========================== --}}
+        <div class="mb-5 px-2">
+
+            <!-- <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+                Portal & Layanan Terkait
+            </h2> -->
+<p
+    class="mt-1 text-2xl sm:text-2xl text-slate-500 font-bold"
+    style="font-family: 'Dancing Script', cursive;"
+>
+    Layanan Terkait
+</p>
+
+        </div>
+
+
+        {{-- =========================
+            SLIDER WRAPPER
+        ========================== --}}
+        <div
+            x-data="{
+                scrollLeft() {
+                    this.$refs.portalSlider.scrollBy({
+                        left: -this.$refs.portalSlider.clientWidth,
+                        behavior: 'smooth'
+                    });
+                },
+
+                scrollRight() {
+                    this.$refs.portalSlider.scrollBy({
+                        left: this.$refs.portalSlider.clientWidth,
+                        behavior: 'smooth'
+                    });
+                }
+            }"
+            class="relative"
+        >
+
+            {{-- =========================
+                SLIDER
+            ========================== --}}
+            <div
+                x-ref="portalSlider"
+                class="
+                    flex
+                    gap-5
+                    overflow-x-auto
+                    scroll-smooth
+                    snap-x
+                    snap-mandatory
+                    scrollbar-hide
+                    px-2
+                    pb-2
+                "
+                style="
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                "
+            >
+
+                @foreach ($portalLinks as $portal)
+
+                    {{-- =========================
+                        PORTAL CARD
+                    ========================== --}}
+                    <a
+                        href="{{ $portal->url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Buka portal {{ $portal->name }}"
+                        class="
+                            group
+                            relative
+                            shrink-0
+                            snap-start
+
+                            w-[85%]
+                            sm:w-[calc(50%-10px)]
+                            md:w-[calc(33.333%-14px)]
+                            lg:w-[calc(20%-16px)]
+
+                            h-[200px]
+
+                            rounded-2xl
+
+                            bg-slate-50
+                            border
+                            border-slate-100
+
+                            flex
+                            flex-col
+                            items-center
+                            justify-center
+                            gap-4
+
+                            overflow-hidden
+
+                            transition-all
+                            duration-300
+
+                            hover:bg-white
+                            hover:border-slate-200
+                            hover:shadow-lg
+                            hover:-translate-y-1
+
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-slate-300
+                        "
+                    >
+
+                        {{-- =========================
+                            LOGO
+                        ========================== --}}
+                        @if ($portal->icon)
+
+                            <div
+                                class="
+                                    flex
+                                    items-center
+                                    justify-center
+
+                                    w-28
+                                    h-24
+                                "
+                            >
+
+                                <img
+                                    src="{{ \Illuminate\Support\Facades\Storage::url($portal->icon) }}"
+                                    alt="{{ $portal->name }}"
+                                    loading="lazy"
+                                    class="
+                                        max-w-[90%]
+                                        max-h-[90%]
+                                        w-auto
+                                        h-auto
+
+                                        object-contain
+
+                                        grayscale
+                                        opacity-60
+
+                                        group-hover:grayscale-0
+                                        group-hover:opacity-100
+                                        group-hover:scale-105
+
+                                        transition-all
+                                        duration-300
+                                    "
+                                    onerror="
+                                        this.style.display='none';
+                                        this.nextElementSibling.style.display='flex';
+                                    "
+                                >
+
+                                {{-- =========================
+                                    FALLBACK LOGO
+                                ========================== --}}
+                                <div
+                                    class="
+                                        hidden
+                                        items-center
+                                        justify-center
+                                        w-14
+                                        h-14
+                                        rounded-full
+                                        bg-slate-100
+                                        text-slate-300
+                                    "
+                                >
+                                    <svg
+                                        class="w-8 h-8"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="1.5"
+                                            d="M12 21a9 9 0 100-18
+                                               9 9 0 000 18z
+                                               M3 12h18
+                                               M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9
+                                               c-2.5-2.5-4-5.5-4-9
+                                               s1.5-6.5 4-9z"
+                                        />
+                                    </svg>
+                                </div>
+
+                            </div>
+
+                        @else
+
+                            {{-- =========================
+                                FALLBACK LOGO
+                            ========================== --}}
+                            <div
+                                class="
+                                    flex
+                                    items-center
+                                    justify-center
+
+                                    w-14
+                                    h-14
+
+                                    rounded-full
+
+                                    bg-slate-100
+                                    text-slate-300
+                                "
+                            >
+
+                                <svg
+                                    class="w-8 h-8"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.5"
+                                        d="M12 21a9 9 0 100-18
+                                           9 9 0 000 18z
+                                           M3 12h18
+                                           M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9
+                                           c-2.5-2.5-4-5.5-4-9
+                                           s1.5-6.5 4-9z"
+                                    />
+                                </svg>
+
+                            </div>
+
+                        @endif
+
+
+                        {{-- =========================
+                            NAMA PORTAL / LAYANAN
+                        ========================== --}}
+                        <div class="px-4 text-center">
+
+                            <span
+                                class="
+                                    block
+
+                                    text-sm
+                                    font-semibold
+                                    text-slate-700
+
+                                    line-clamp-2
+
+                                    group-hover:text-slate-900
+
+                                    transition-colors
+                                    duration-300
+                                "
+                                title="{{ $portal->name }}"
+                            >
+                                <!-- {{ $portal->name }} -->
+                            </span>
+
+                        </div>
+
+
+                        {{-- =========================
+                            INDICATOR LINK
+                        ========================== --}}
+                        <div
+                            class="
+                                absolute
+                                bottom-4
+                                right-4
+
+                                w-7
+                                h-7
+
+                                rounded-full
+
+                                flex
+                                items-center
+                                justify-center
+
+                                bg-white
+                                border
+                                border-slate-100
+
+                                text-slate-400
+
+                                opacity-0
+                                translate-x-1
+
+                                group-hover:opacity-100
+                                group-hover:translate-x-0
+
+                                transition-all
+                                duration-300
+                            "
+                        >
+<svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="512.000000pt" height="512.000000pt" viewBox="0 0 512.000000 512.000000" preserveAspectRatio="xMidYMid meet" class="w-4 h-4">
+
+<g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)" fill="#07a2a2" stroke="none">
+<path d="M3546 5104 c-243 -33 -466 -127 -661 -280 -117 -91 -947 -929 -970 -979 -28 -60 -26 -167 4 -225 72 -140 225 -197 361 -134 46 21 126 96 490 458 239 238 458 449 485 468 251 178 589 200 865 57 439 -227 577 -791 297 -1209 -16 -25 -227 -243 -468 -485 -366 -368 -442 -449 -463 -495 -63 -136 -6 -289 134 -361 58 -30 165 -32 225 -4 50 23 901 866 984 975 160 209 250 430 280 685 65 542 -200 1074 -674 1353 -263 155 -581 218 -889 176z" fill="#07a2a2"/>
+<path d="M3240 3598 c-51 -19 -114 -79 -876 -842 -783 -782 -823 -824 -843 -879 -41 -112 -20 -209 63 -293 84 -83 181 -104 293 -63 55 20 97 60 879 843 783 782 823 824 843 879 41 112 20 209 -63 293 -83 83 -184 104 -296 62z" fill="#07a2a2"/>
+<path d="M1318 3220 c-21 -5 -55 -21 -75 -34 -52 -33 -910 -897 -965 -971 -149 -201 -238 -424 -267 -670 -49 -412 91 -824 383 -1123 491 -506 1288 -561 1841 -126 118 92 947 929 970 979 28 60 26 167 -4 225 -72 140 -225 197 -361 134 -46 -21 -126 -96 -490 -458 -239 -238 -457 -449 -485 -468 -251 -178 -589 -200 -867 -56 -437 226 -575 791 -295 1208 16 25 227 243 468 485 479 481 489 493 489 602 0 179 -171 316 -342 273z" fill="#07a2a2"/>
+</g>
+</svg>
+
+                        </div>
+
+                    </a>
+
+                @endforeach
+
+            </div>
+
+
+            {{-- =========================
+                TOMBOL SEBELUMNYA
+            ========================== --}}
+            @if ($portalLinks->count() > 5)
+
+                <button
+                    type="button"
+                    @click="scrollLeft()"
+                    class="
+                        absolute
+                        left-[-10px]
+                        top-1/2
+                        -translate-y-1/2
+                        z-10
+
+                        w-10
+                        h-10
+
+                        rounded-full
+
+                        bg-white
+                        border
+                        border-slate-100
+
+                        shadow-lg
+
+                        hidden
+                        sm:flex
+
+                        items-center
+                        justify-center
+
+                        text-slate-600
+
+                        hover:bg-slate-50
+                        hover:text-slate-900
+                        hover:scale-105
+
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-slate-300
+
+                        transition-all
+                        duration-200
+                    "
+                    aria-label="Portal sebelumnya"
+                >
+
+                    <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 19l-7-7 7-7"
+                        />
+                    </svg>
+
+                </button>
+
+            @endif
+
+
+            {{-- =========================
+                TOMBOL BERIKUTNYA
+            ========================== --}}
+            @if ($portalLinks->count() > 5)
+
+                <button
+                    type="button"
+                    @click="scrollRight()"
+                    class="
+                        absolute
+                        right-[-10px]
+                        top-1/2
+                        -translate-y-1/2
+                        z-10
+
+                        w-10
+                        h-10
+
+                        rounded-full
+
+                        bg-white
+                        border
+                        border-slate-100
+
+                        shadow-lg
+
+                        hidden
+                        sm:flex
+
+                        items-center
+                        justify-center
+
+                        text-slate-600
+
+                        hover:bg-slate-50
+                        hover:text-slate-900
+                        hover:scale-105
+
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-slate-300
+
+                        transition-all
+                        duration-200
+                    "
+                    aria-label="Portal berikutnya"
+                >
+
+                    <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 5l7 7-7 7"
+                        />
+                    </svg>
+
+                </button>
+
+            @endif
+
+        </div>
+
+
+        {{-- =========================
+            MOBILE HINT
+        ========================== --}}
+        @if ($portalLinks->count() > 1)
+
+            <div
+                class="
+                    flex
+                    sm:hidden
+
+                    justify-center
+                    items-center
+
+                    gap-2
+
+                    mt-3
+                "
+            >
+
+                <svg
+                    class="w-4 h-4 text-slate-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.5"
+                        d="M7 16l-4-4m0 0l4-4m-4 4h18"
+                    />
+                </svg>
+
+                <span class="text-xs text-slate-400">
+                    Geser untuk melihat layanan lainnya
+                </span>
+
+            </div>
+
+        @endif
+
+    </section>
+
+@endif
 </div>
