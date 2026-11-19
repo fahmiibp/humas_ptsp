@@ -1,7 +1,7 @@
 <x-filament-widgets::widget>
     <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-linear-65 from-white-500 to-green-500 dark:bg-[#111827] p-6 shadow-xl space-y-6">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            
+
             <!-- Sisi Kiri: Badge, Judul & Subtitle -->
             <div class="space-y-3">
                 <!-- Baris Badge & Tanggal -->
@@ -9,7 +9,7 @@
                     <x-filament::badge color="info" size="sm">
                         Portal WARTA PTSP
                     </x-filament::badge>
-                    
+
                     <span class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">
                         {{ $todayDate }}
                     </span>
@@ -32,9 +32,8 @@
                     tag="a"
                     href="{{ url('admin/timelines/create') }}"
                     icon="heroicon-m-calendar-days"
-                    color="primary"
-                    size="md"
-                >
+                    color="gray"
+                    size="md">
                     Input Agenda
                 </x-filament::button>
 
@@ -43,8 +42,7 @@
                     href="{{ url('admin/wartas/create') }}"
                     icon="heroicon-m-pencil-square"
                     color="gray"
-                    size="md"
-                >
+                    size="md">
                     Tulis Warta
                 </x-filament::button>
 
@@ -53,8 +51,7 @@
                     href="{{ url('admin/rencana-konten-medsos/create') }}"
                     icon="heroicon-m-share"
                     color="gray"
-                    size="md"
-                >
+                    size="md">
                     Jadwalkan Medsos
                 </x-filament::button>
             </div>

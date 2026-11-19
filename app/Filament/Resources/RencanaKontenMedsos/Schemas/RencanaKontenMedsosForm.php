@@ -57,6 +57,7 @@ class RencanaKontenMedsosForm
                             'tiktok' => 'TikTok',
                             'facebook' => 'Facebook',
                             'x_twitter' => 'X / Twitter',
+                            'website_kantor' => 'Website Kantor',
                         ])
                         ->searchable()
                         ->required(),
@@ -89,10 +90,10 @@ class RencanaKontenMedsosForm
                     Select::make('agenda_id')
                         ->label('Agenda Liputan (Opsional)')
                         ->placeholder('Pilih agenda liputan jika ada')
-                        ->options(fn (): array => Timeline::query()
+                        ->options(fn(): array => Timeline::query()
                             ->orderByDesc('start_date')
                             ->get()
-                            ->mapWithKeys(fn (Timeline $timeline): array => [
+                            ->mapWithKeys(fn(Timeline $timeline): array => [
                                 $timeline->getKey() => sprintf(
                                     '%s — %s',
                                     $timeline->event_name,
