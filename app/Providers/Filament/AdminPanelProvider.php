@@ -63,12 +63,18 @@ class AdminPanelProvider extends PanelProvider
             ->subNavigationPosition(SubNavigationPosition::End)
             ->sidebarFullyCollapsibleOnDesktop()
             ->navigationGroups([
+                NavigationGroup::make('Produksi Konten')
+                    ->icon('heroicon-o-pencil-square')
+                    ->collapsed(true),
+                NavigationGroup::make('Tautan & Portal')
+                    ->icon('heroicon-o-link')
+                    ->collapsed(true),
                 NavigationGroup::make('Manajemen Agenda')
                     ->icon('heroicon-o-calendar-days')
-                    ->collapsed(false),
-                NavigationGroup::make('Dokumentasi & Publikasi')
-                    ->icon('heroicon-o-photo')
-                    ->collapsed(false),
+                    ->collapsed(true),
+                NavigationGroup::make('Informasi & Bantuan')
+                    ->icon('heroicon-o-information-circle')
+                    ->collapsed(true),
                 NavigationGroup::make('Pengaturan Sistem')
                     ->icon('heroicon-o-cog-6-tooth')
                     ->collapsed(true),

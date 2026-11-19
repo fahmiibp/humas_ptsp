@@ -4,6 +4,7 @@ namespace App\Livewire\Articles;
 
 use App\Models\Warta;
 use App\Models\Kategori;
+use App\Models\PortalLink;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -101,11 +102,17 @@ class Index extends Component
             ->orderBy('nama_kategori')
             ->get();
 
+        $portalLinks = PortalLink::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
         return view('livewire.articles.index', [
             'articles' => $articles,
             'categories' => $categories,
             'hotNews'    => $hotNews,
             'hotTicker'  => $hotTicker,
+            'portalLinks' => $portalLinks,
         ]);
     }
 }

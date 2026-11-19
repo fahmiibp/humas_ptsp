@@ -458,27 +458,22 @@ PROMPT;
                 ->schema([
 
                     FileUpload::make('dokumentasi_utama')
-                        ->label('Dokumentasi Gambar')
-                        ->image()
-                        ->multiple()
-                        ->reorderable()
-                        ->maxFiles(5)
-                        ->acceptedFileTypes([
-                            'image/jpeg',
-                            'image/png',
-                            'image/webp',
-                        ])
-                        ->disk('public')
-                        ->directory('Cover_Foto')
-                        ->maxSize(2048)
-                        ->alignCenter()
-                        ->imagePreviewHeight('180')
-                        ->panelLayout('grid')
-                        ->helperText(
-                            'Pilih maksimal 5 gambar berformat JPG, PNG, atau WebP. Ukuran maksimal 2 MB per gambar.'
-                        )
-                        ->required()
-                        ->columnSpanFull(),
+                    ->label('Dokumentasi Utama')
+                    ->image()
+                    ->multiple()
+                    ->disk('local')
+                    ->directory('Cover_Foto')
+                    ->maxFiles(5)
+                    ->maxSize(5120)
+                    ->acceptedFileTypes([
+                        'image/jpeg',
+                        'image/png',
+                        'image/webp',
+                    ])
+                    ->downloadable()
+                    ->openable()
+                    ->reorderable()
+                    ->columnSpanFull(),
 
                 ])
                 ->columnSpanFull()
