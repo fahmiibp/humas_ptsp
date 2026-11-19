@@ -30,14 +30,19 @@ class Index extends Component
         $this->resetPage();
     }
 
-
     public function render()
     {
-        $articles = Warta::query()
+        // Query dasar berita yang sudah dipublikasikan
+        $publishedNews = function () {
+            return Warta::query()
+                ->where('status_naskah', 'Sudah Tayang')
+                ->whereNotNull('jadwal_tayang')
+                ->whereDate('jadwal_tayang', '<=', now()->toDateString());
+        };
+
+        // Artikel utama
+        $articles = $publishedNews()
             ->with('kategori')
-            ->where('status_naskah', 'Sudah Tayang')
-            ->whereNotNull('jadwal_tayang')
-            ->whereDate('jadwal_tayang', '<=', now()->toDateString())
 
             // Pencarian berita
             ->when($this->search, function (Builder $query) {
@@ -53,7 +58,7 @@ class Index extends Component
                 });
             })
 
-            // Filter berdasarkan SLUG kategori
+            // Filter kategori
             ->when($this->category, function (Builder $query) {
                 $query->whereHas('kategori', function (Builder $query) {
                     $query->where('slug', $this->category);
@@ -63,37 +68,54 @@ class Index extends Component
             ->orderByDesc('jadwal_tayang')
             ->paginate(6);
 
-        $showHot = ! $this->search && ! $this->category;
+        // Hot News ditampilkan selama tidak ada pencarian
+        $showHot = ! $this->search;
 
+        // Filter kategori untuk Hot News
+        $applyHotCategory = function (Builder $query) {
+            $query->when($this->category, function (Builder $query) {
+                $query->whereHas('kategori', function (Builder $query) {
+                    $query->where('slug', $this->category);
+                });
+            });
+        };
+
+        // Hot News utama
         $hotNews = $showHot
-            ? Warta::query()
+            ? $publishedNews()
             ->with('kategori')
-            ->where('status_naskah', 'Sudah Tayang')
-            ->whereNotNull('jadwal_tayang')
-            ->whereDate('jadwal_tayang', '<=', now()->toDateString())
+            ->whereHas('kategori', function (Builder $query) use ($applyHotCategory) {
+                if ($this->category) {
+                    $query->where('slug', $this->category);
+                }
+            })
             ->hotNews()
             ->orderByDesc('jadwal_tayang')
             ->limit(3)
             ->get()
             : collect();
 
+        // Hot News ticker
         $hotTicker = $showHot
-            ? Warta::query()
-            ->where('status_naskah', 'Sudah Tayang')
-            ->whereNotNull('jadwal_tayang')
-            ->whereDate('jadwal_tayang', '<=', now()->toDateString())
+            ? $publishedNews()
+            ->when($this->category, function (Builder $query) {
+                $query->whereHas('kategori', function (Builder $query) {
+                    $query->where('slug', $this->category);
+                });
+            })
             ->hotNews()
             ->orderByDesc('jadwal_tayang')
             ->limit(5)
-            ->get(['id', 'judul_siaran_pers', 'slug_url'])
+            ->get([
+                'id',
+                'judul_siaran_pers',
+                'slug_url'
+            ])
             : collect();
 
-        // Ambil kategori yang memiliki berita terpublikasi
-        $categoryIds = Warta::query()
+        // Kategori yang memiliki berita terpublikasi
+        $categoryIds = $publishedNews()
             ->select('kategori_id')
-            ->where('status_naskah', 'Sudah Tayang')
-            ->whereNotNull('jadwal_tayang')
-            ->whereDate('jadwal_tayang', '<=', now()->toDateString())
             ->whereNotNull('kategori_id')
             ->distinct();
 
@@ -102,6 +124,7 @@ class Index extends Component
             ->orderBy('nama_kategori')
             ->get();
 
+        // Portal dan layanan terkait
         $portalLinks = PortalLink::query()
             ->where('is_active', true)
             ->orderBy('sort_order')
@@ -110,8 +133,8 @@ class Index extends Component
         return view('livewire.articles.index', [
             'articles' => $articles,
             'categories' => $categories,
-            'hotNews'    => $hotNews,
-            'hotTicker'  => $hotTicker,
+            'hotNews' => $hotNews,
+            'hotTicker' => $hotTicker,
             'portalLinks' => $portalLinks,
         ]);
     }

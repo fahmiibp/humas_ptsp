@@ -4,6 +4,7 @@
 $categories = $repo->categories();
 $activeCategory = request()->query('category');
 $search = request()->query('search');
+$footer = \App\Models\FooterSetting::where('is_active', true)->first();
 @endphp
 
 <header x-data="{ open: false, categoryOpen: false }"
@@ -36,9 +37,19 @@ $search = request()->query('search');
             wire:navigate
             class="flex items-center gap-2">
 
-            <img src="{{ asset('image/ptsp.png') }}"
+            @if ($footer?->logo)
+            <img
+                src="{{ \Illuminate\Support\Facades\Storage::url($footer->logo) }}"
                 width="100"
-                alt="Logo PTSP Jawa Tengah">
+                alt="Logo PTSP Jawa Tengah"
+                class="object-contain">
+            @else
+            <img
+                src="{{ asset('image/ptsp.png') }}"
+                width="100"
+                alt="Logo PTSP Jawa Tengah"
+                class="object-contain">
+            @endif
 
             <h1 class="font-mono text-3xl font-bold text-teal-700">
                 News

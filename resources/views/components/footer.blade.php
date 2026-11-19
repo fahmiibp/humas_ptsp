@@ -1,5 +1,34 @@
 @php
-$footer = \App\Models\FooterSetting::where('is_active', true)->first();
+use App\Models\FooterSetting;
+use App\Models\SocialLink;
+
+$footer = FooterSetting::where('is_active', true)->first();
+
+$icons = [
+'instagram' => 'instagram',
+'tiktok' => 'tiktok',
+'facebook' => 'facebook',
+'youtube' => 'youtube',
+'x' => 'x',
+'whatsapp' => 'whatsapp',
+'telegram' => 'telegram',
+'linkedin' => 'linkedin',
+'threads' => 'threads',
+'pinterest' => 'pinterest',
+'reddit' => 'reddit',
+'discord' => 'discord',
+'github' => 'github',
+'medium' => 'medium',
+'spotify' => 'spotify',
+'twitch' => 'twitch',
+'snapchat' => 'snapchat',
+];
+
+$socials = SocialLink::query()
+->where('is_active', true)
+->orderBy('sort_order')
+->get()
+->filter(fn ($social) => isset($icons[strtolower($social->icon ?? '')]));
 @endphp
 
 <footer class="mt-16 text-white" style="background-color: #009689;">
@@ -172,8 +201,8 @@ $footer = \App\Models\FooterSetting::where('is_active', true)->first();
 
 
                 {{-- =========================
-                    SOSIAL MEDIA
-                ========================== --}}
+    SOSIAL MEDIA
+========================== --}}
                 <div>
 
                     <div class="mb-4 flex items-center gap-3">
@@ -192,85 +221,43 @@ $footer = \App\Models\FooterSetting::where('is_active', true)->first();
 
                     </div>
 
-
                     {{-- SOCIAL MEDIA --}}
-                    <div class="flex items-center gap-4">
+                    <div class="flex flex-wrap items-center gap-4">
 
-                        @if ($footer?->instagram)
+                        @forelse ($socials as $social)
+
+                        @php
+                        $icon = strtolower($social->icon);
+                        $iconUrl = 'https://cdn.simpleicons.org/' . $icons[$icon];
+                        @endphp
+
                         <a
-                            href="{{ $footer->instagram }}"
+                            href="{{ $social->url }}"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="transition hover:scale-110 hover:text-[#66D1C8]"
-                            aria-label="Instagram">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="h-6 w-6">
-                                <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 1.5A4.25 4.25 0 003.5 7.75v8.5a4.25 4.25 0 004.25 4.25h8.5a4.25 4.25 0 004.25-4.25v-8.5a4.25 4.25 0 00-4.25-4.25h-8.5z" />
-                                <path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0 1.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z" />
-                                <circle cx="17.5" cy="6.5" r="1.25" />
-                            </svg>
+                            aria-label="{{ $social->name }}"
+                            title="{{ $social->name }}"
+                            class="inline-flex items-center justify-center transition duration-200 hover:scale-110">
+
+                            <img
+                                src="{{ $iconUrl }}"
+                                alt=""
+                                width="24"
+                                height="24"
+                                loading="lazy"
+                                class="h-6 w-6 brightness-0 invert transition duration-200 hover:opacity-70">
+
                         </a>
-                        @endif
 
+                        @empty
 
-                        @if ($footer?->facebook)
-                        <a
-                            href="{{ $footer->facebook }}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="transition hover:scale-110 hover:text-[#66D1C8]"
-                            aria-label="Facebook">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="h-6 w-6">
-                                <path d="M13.5 22v-8h2.75l.5-3h-3.25V9.05c0-.87.29-1.55 1.6-1.55h1.7V4.82c-.29-.04-1.28-.12-2.43-.12-2.4 0-4.05 1.46-4.05 4.15V11H7.6v3h2.72v8h3.18z" />
-                            </svg>
-                        </a>
-                        @endif
+                        <p class="text-sm text-white/70">
+                            Media sosial belum diatur.
+                        </p>
 
-
-                        @if ($footer?->youtube)
-                        <a
-                            href="{{ $footer->youtube }}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="transition hover:scale-110 hover:text-[#66D1C8]"
-                            aria-label="YouTube">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="h-6 w-6">
-                                <path d="M23.5 6.2a3 3 0 00-2.1-2.12C19.55 3.5 12 3.5 12 3.5s-7.55 0-9.4.58A3 3 0 00.5 6.2 31.7 31.7 0 000 12a31.7 31.7 0 00.5 5.8 3 3 0 002.1 2.12c1.85.58 9.4.58 9.4.58s7.55 0 9.4-.58a3 3 0 002.1-2.12A31.7 31.7 0 0024 12a31.7 31.7 0 00-.5-5.8zM9.75 15.75v-7.5L16.25 12l-6.5 3.75z" />
-                            </svg>
-                        </a>
-                        @endif
-
-
-                        @if ($footer?->whatsapp)
-                        <a
-                            href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $footer->whatsapp) }}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="transition hover:scale-110 hover:text-[#66D1C8]"
-                            aria-label="WhatsApp">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="h-6 w-6">
-                                <path d="M12 2a10 10 0 00-8.66 15l-1.1 4.02 4.13-1.08A10 10 0 1012 2zm0 1.5a8.5 8.5 0 016.01 14.51A8.5 8.5 0 0112 20.5a8.4 8.4 0 01-4.27-1.15l-.3-.18-2.45.64.65-2.36-.2-.31A8.5 8.5 0 1112 3.5zm-3.1 3.8c-.2 0-.52.08-.8.38-.27.3-1.05 1.03-1.05 2.5s1.08 2.9 1.23 3.1c.15.2 2.08 3.33 5.14 4.54 2.54 1 2.54.67 3 .63.46-.04 1.48-.6 1.69-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.15-.48-.27-.25-.12-1.48-.73-1.71-.81-.23-.08-.4-.12-.57.12-.17.25-.65.81-.8.98-.15.17-.29.19-.54.06-.25-.12-1.03-.38-1.96-1.21-.72-.64-1.21-1.42-1.35-1.67-.14-.25-.01-.38.11-.5.11-.11.25-.29.37-.44.12-.15.16-.25.25-.42.08-.17.04-.31-.02-.44-.06-.12-.57-1.36-.78-1.86-.21-.49-.42-.42-.57-.42z" />
-                            </svg>
-                        </a>
-                        @endif
+                        @endforelse
 
                     </div>
-
 
                     @if ($footer?->deskripsi_sosial)
 

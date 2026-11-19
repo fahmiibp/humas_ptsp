@@ -8,15 +8,15 @@
             <div class="space-y-1.5">
                 <div class="flex items-center gap-2">
                     @if ($isCurrentMonth)
-                        <span
-                            class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/20">
-                            ● MONITORING AKTIF • BULAN BERJALAN
-                        </span>
+                    <span
+                        class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/20">
+                        ● MONITORING AKTIF • BULAN BERJALAN
+                    </span>
                     @else
-                        <span
-                            class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-500/10 px-2.5 py-0.5 text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-500/20">
-                            ARSIP • {{ strtoupper($monthName) }}
-                        </span>
+                    <span
+                        class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-500/10 px-2.5 py-0.5 text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-500/20">
+                        ARSIP • {{ strtoupper($monthName) }}
+                    </span>
                     @endif
                     <span class="text-xs text-gray-600 dark:text-emerald-300/80">Per {{ $todayDate }}</span>
                 </div>
@@ -38,10 +38,22 @@
                         class="block text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 tracking-wider mb-1">
                         FILTER BULAN
                     </label>
-                    <select id="filter-bulan" wire:model.live="selectedMonth"
-                        class="w-full rounded-lg border border-emerald-300 dark:border-emerald-700 bg-white/90 dark:bg-emerald-900/40 text-sm text-gray-900 dark:text-white px-3 py-2 shadow-sm focus:border-emerald-500 focus:ring-emerald-500">
+                    <select
+                        id="filter-bulan"
+                        wire:model.live="selectedMonth"
+                        class="w-full rounded-lg border border-emerald-300
+           dark:border-emerald-700
+           bg-white dark:bg-emerald-900
+           text-sm text-gray-900 dark:text-white
+           px-3 py-2 shadow-sm
+           focus:border-emerald-500 focus:ring-emerald-500">
+
                         @foreach ($monthOptions as $value => $label)
-                            <option value="{{ $value }}">{{ $label }}</option>
+                        <option
+                            value="{{ $value }}"
+                            class="bg-white text-gray-900 dark:bg-emerald-900 dark:text-white">
+                            {{ $label }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -93,12 +105,12 @@
                     class="border-t border-emerald-100 dark:border-emerald-800/60 pt-2 flex justify-between items-center text-xs">
                     <span class="text-gray-500 dark:text-emerald-300/70">Tren vs bln lalu:</span>
                     @if (is_null($agendaTrend))
-                        <span class="text-gray-500 font-semibold">–</span>
+                    <span class="text-gray-500 font-semibold">–</span>
                     @else
-                        <span
-                            class="{{ $agendaTrend >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }} font-semibold">
-                            {{ $agendaTrend > 0 ? '+' : '' }}{{ $agendaTrend }}%
-                        </span>
+                    <span
+                        class="{{ $agendaTrend >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }} font-semibold">
+                        {{ $agendaTrend > 0 ? '+' : '' }}{{ $agendaTrend }}%
+                    </span>
                     @endif
                 </div>
             </div>
@@ -178,7 +190,8 @@
                 <div class="my-3">
                     <div class="text-3xl font-extrabold text-gray-900 dark:text-white">{{ $wartaPublished }}</div>
                     <p class="text-xs text-gray-600 dark:text-emerald-200/80 mt-0.5">rilis terbit di
-                        {{ $monthName }}</p>
+                        {{ $monthName }}
+                    </p>
                 </div>
                 <div
                     class="border-t border-emerald-100 dark:border-emerald-800/60 pt-2 flex justify-between items-center text-xs">

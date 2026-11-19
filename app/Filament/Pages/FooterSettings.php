@@ -21,11 +21,9 @@ class FooterSettings extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-bars-3-bottom-left';
 
-    protected static ?string $navigationLabel = 'Footer';
+    protected static ?string $navigationLabel = 'Logo & Informasi Kontak';
 
-    protected static ?string $title = 'Pengaturan Footer';
-
-    protected static string|UnitEnum|null $navigationGroup = 'Pengaturan';
+    protected static string|UnitEnum|null $navigationGroup = 'Pengaturan Sistem';
 
     protected static ?int $navigationSort = 20;
 
@@ -53,9 +51,9 @@ class FooterSettings extends Page
     {
         return $schema
             ->components([
-                Section::make('Logo Footer')
+                Section::make('Logo Website')
                     ->description(
-                        'Logo yang ditampilkan pada bagian footer website.'
+                        'Logo yang ditampilkan pada bagian navbar & footer website.'
                     )
                     ->schema([
                         FileUpload::make('logo')
@@ -109,45 +107,6 @@ class FooterSettings extends Page
                                     ->label('Telepon 2')
                                     ->placeholder(
                                         '(024) 0000000'
-                                    ),
-                            ]),
-                    ]),
-
-                Section::make('Media Sosial')
-                    ->description(
-                        'Masukkan alamat media sosial yang akan ditampilkan pada footer.'
-                    )
-                    ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                TextInput::make('instagram')
-                                    ->label('Instagram')
-                                    ->url()
-                                    ->placeholder(
-                                        'https://instagram.com/...'
-                                    ),
-
-                                TextInput::make('facebook')
-                                    ->label('Facebook')
-                                    ->url()
-                                    ->placeholder(
-                                        'https://facebook.com/...'
-                                    ),
-
-                                TextInput::make('youtube')
-                                    ->label('YouTube')
-                                    ->url()
-                                    ->placeholder(
-                                        'https://youtube.com/...'
-                                    ),
-
-                                TextInput::make('whatsapp')
-                                    ->label('WhatsApp')
-                                    ->placeholder(
-                                        '628xxxxxxxxxx'
-                                    )
-                                    ->helperText(
-                                        'Gunakan format nomor internasional tanpa + atau spasi.'
                                     ),
                             ]),
                     ]),
