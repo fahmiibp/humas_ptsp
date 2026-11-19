@@ -475,7 +475,7 @@ PROMPT;
                         ->imagePreviewHeight('180')
                         ->panelLayout('grid')
                         ->helperText(
-                            'Pilih maksimal 5 gambar berformat JPG, PNG, atau WebP. Ukuran maksimal 2 MB per gambar.'
+                            'Pilih maksimal 5 gambar berformat JPG, PNG, atau WebP. Maksimal 2 MB per gambar.'
                         )
                         ->required()
                         ->columnSpanFull(),
