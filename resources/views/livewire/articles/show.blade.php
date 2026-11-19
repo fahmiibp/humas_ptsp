@@ -2,8 +2,11 @@
     $authorName = $article->author?->name ?? 'Redaksi PTSP Jawa Tengah';
 
     /*
-     * SEO
-     */
+    |--------------------------------------------------------------------------
+    | SEO
+    |--------------------------------------------------------------------------
+    */
+
     $seoTitle = filled($article->meta_title)
         ? $article->meta_title
         : $article->judul_siaran_pers;
@@ -15,14 +18,19 @@
     $seoKeywords = $article->meta_keywords ?? '';
 
     /*
-     * Dokumentasi
-     *
-     * Bisa berupa:
+    |--------------------------------------------------------------------------
+    | DOKUMENTASI WARTA
+    |--------------------------------------------------------------------------
+    */
+
+    $dokumentasi = $article->dokumentasi_utama;
+
+    /*
+     * dokumentasi_utama bisa berupa:
      * - array
      * - JSON string
-     * - satu path gambar
+     * - satu nama/path file
      */
-    $dokumentasi = $article->dokumentasi_utama;
 
     if (is_string($dokumentasi)) {
         $decoded = json_decode($dokumentasi, true);
@@ -32,15 +40,36 @@
             : [$dokumentasi];
     }
 
-    $dokumentasi = collect($dokumentasi ?? [])
-        ->filter()
+    if (! is_array($dokumentasi)) {
+        $dokumentasi = [];
+    }
+
+    $dokumentasi = collect($dokumentasi)
+        ->filter(fn ($path) => is_string($path) && trim($path) !== '')
         ->take(5)
         ->values();
 
+    /*
+    |--------------------------------------------------------------------------
+    | URL GAMBAR
+    |--------------------------------------------------------------------------
+    |
+    | Jangan menggunakan Storage::url().
+    |
+    | Semua gambar dilewatkan melalui:
+    |
+    | /media/warta/{filename}
+    |
+    */
+
     $fotoSlide = $dokumentasi
-        ->map(
-            fn ($path) => \Illuminate\Support\Facades\Storage::url($path)
-        )
+        ->map(function ($path) {
+            $filename = basename($path);
+
+            return route('media.warta', [
+                'filename' => $filename,
+            ]);
+        })
         ->values();
 
     $ogImage = $fotoSlide->first();
@@ -69,7 +98,6 @@
         name="robots"
         content="index, follow"
     >
-
 
     {{-- Open Graph --}}
 
@@ -106,7 +134,7 @@
     @endif
 
 
-    {{-- Twitter Card --}}
+    {{-- Twitter --}}
 
     <meta
         name="twitter:card"
@@ -135,9 +163,9 @@
 
 <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
 
-    {{-- =====================================================
-         BREADCRUMB / BACK
-         ===================================================== --}}
+    {{-- =========================================================
+         BREADCRUMB
+         ========================================================= --}}
 
     <nav
         class="mb-6"
@@ -171,9 +199,9 @@
     </nav>
 
 
-    {{-- =====================================================
+    {{-- =========================================================
          ARTICLE HEADER
-         ===================================================== --}}
+         ========================================================= --}}
 
     <header class="mb-8">
 
@@ -212,9 +240,11 @@
             <div class="flex items-center gap-2.5">
 
                 <div>
+
                     <p class="text-sm text-gray-400">
                         Oleh {{ $authorName }}
                     </p>
+
                 </div>
 
             </div>
@@ -244,9 +274,9 @@
         </div>
 
 
-        {{-- =================================================
+        {{-- =====================================================
              SOCIAL SHARE
-             ================================================= --}}
+             ===================================================== --}}
 
         <div class="mb-5 flex flex-wrap items-center gap-3">
 
@@ -338,6 +368,8 @@
                     navigator.clipboard.writeText(window.location.href)
                         .then(() => {
                             const toast = document.getElementById('copy-link-toast');
+
+                            if (!toast) return;
 
                             toast.classList.remove(
                                 'opacity-0',
@@ -431,7 +463,7 @@
         </div>
 
 
-        {{-- Lead --}}
+        {{-- Lead berita --}}
 
         @if ($article->lead_berita)
 
@@ -444,9 +476,9 @@
     </header>
 
 
-    {{-- =====================================================
-         SLIDER DOKUMENTASI + LIGHTBOX
-         ===================================================== --}}
+    {{-- =========================================================
+         SLIDER DOKUMENTASI
+         ========================================================= --}}
 
     @if ($fotoSlide->isNotEmpty())
 
@@ -454,50 +486,60 @@
             class="mb-8 -mx-4 sm:mx-0"
             x-data="{
                 i: 0,
-                urls: @js($fotoSlide),
+                urls: @js($fotoSlide->values()),
                 startX: 0,
                 timer: null,
                 lightbox: false,
 
                 next() {
-                    this.i = (this.i + 1) % this.urls.length
+                    if (this.urls.length <= 1) return;
+
+                    this.i = (this.i + 1) % this.urls.length;
                 },
 
                 prev() {
-                    this.i = (this.i - 1 + this.urls.length) % this.urls.length
+                    if (this.urls.length <= 1) return;
+
+                    this.i =
+                        (this.i - 1 + this.urls.length)
+                        % this.urls.length;
                 },
 
                 play() {
-                    if (this.urls.length > 1 && !this.lightbox) {
-                        this.stop()
-
-                        this.timer = setInterval(() => {
-                            this.next()
-                        }, 5000)
+                    if (this.urls.length <= 1 || this.lightbox) {
+                        return;
                     }
+
+                    this.stop();
+
+                    this.timer = setInterval(() => {
+                        this.next();
+                    }, 5000);
                 },
 
                 stop() {
                     if (this.timer) {
-                        clearInterval(this.timer)
-                        this.timer = null
+                        clearInterval(this.timer);
+                        this.timer = null;
                     }
                 },
 
                 openLightbox(index = this.i) {
-                    this.i = index
-                    this.stop()
-                    this.lightbox = true
-                    document.body.classList.add('overflow-hidden')
+                    this.i = index;
+                    this.stop();
+                    this.lightbox = true;
+
+                    document.body.classList.add('overflow-hidden');
                 },
 
                 closeLightbox() {
-                    this.lightbox = false
-                    document.body.classList.remove('overflow-hidden')
+                    this.lightbox = false;
+
+                    document.body.classList.remove('overflow-hidden');
 
                     this.$nextTick(() => {
-                        this.play()
-                    })
+                        this.play();
+                    });
                 }
             }"
             x-init="play()"
@@ -509,10 +551,11 @@
             x-on:touchstart.passive="startX = $event.touches[0].clientX"
             x-on:touchend="
                 if (!lightbox) {
-                    const d = $event.changedTouches[0].clientX - startX;
+                    const distance =
+                        $event.changedTouches[0].clientX - startX;
 
-                    if (Math.abs(d) > 50) {
-                        d < 0 ? next() : prev()
+                    if (Math.abs(distance) > 50) {
+                        distance < 0 ? next() : prev();
                     }
                 }
             "
@@ -522,7 +565,9 @@
             aria-label="Dokumentasi berita"
         >
 
-            <div class="relative overflow-hidden rounded-none bg-gray-100 sm:rounded-2xl">
+            <div
+                class="relative overflow-hidden rounded-none bg-gray-100 sm:rounded-2xl"
+            >
 
                 {{-- Track --}}
 
@@ -552,9 +597,13 @@
                 </div>
 
 
+                {{-- =====================================================
+                     NAVIGATION
+                     ===================================================== --}}
+
                 @if ($fotoSlide->count() > 1)
 
-                    {{-- Tombol sebelumnya --}}
+                    {{-- Previous --}}
 
                     <button
                         type="button"
@@ -567,12 +616,12 @@
                             class="h-5 w-5"
                             fill="none"
                             stroke="currentColor"
-                            stroke-width="2"
                             viewBox="0 0 24 24"
                         >
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
+                                stroke-width="2"
                                 d="M15 19l-7-7 7-7"
                             />
                         </svg>
@@ -580,7 +629,7 @@
                     </button>
 
 
-                    {{-- Tombol berikutnya --}}
+                    {{-- Next --}}
 
                     <button
                         type="button"
@@ -593,12 +642,12 @@
                             class="h-5 w-5"
                             fill="none"
                             stroke="currentColor"
-                            stroke-width="2"
                             viewBox="0 0 24 24"
                         >
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
+                                stroke-width="2"
                                 d="M9 5l7 7-7 7"
                             />
                         </svg>
@@ -616,20 +665,22 @@
 
                     {{-- Dots --}}
 
-                    <div class="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
+                    <div
+                        class="absolute inset-x-0 bottom-3 flex justify-center gap-1.5"
+                    >
 
                         <template
-                            x-for="(u, idx) in urls"
-                            :key="idx"
+                            x-for="(url, index) in urls"
+                            :key="index"
                         >
 
                             <button
                                 type="button"
-                                x-on:click="i = idx"
-                                :aria-label="'Foto ' + (idx + 1)"
+                                x-on:click="i = index"
+                                :aria-label="'Foto ' + (index + 1)"
                                 class="h-2 rounded-full transition-all"
                                 :class="
-                                    i === idx
+                                    i === index
                                         ? 'w-5 bg-white'
                                         : 'w-2 bg-white/50 hover:bg-white/80'
                                 "
@@ -645,7 +696,7 @@
 
 
             {{-- =====================================================
-                 LIGHTBOX / IMAGE POPOUT
+                 LIGHTBOX
                  ===================================================== --}}
 
             <div
@@ -659,11 +710,11 @@
                 aria-label="Preview gambar dokumentasi"
             >
 
-                {{-- Tombol Close --}}
+                {{-- Close --}}
 
                 <button
                     type="button"
-                    @click="closeLightbox()"
+                    x-on:click="closeLightbox()"
                     class="absolute right-4 top-4 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition hover:bg-white/20"
                     aria-label="Tutup gambar"
                     title="Tutup"
@@ -673,12 +724,12 @@
                         class="h-6 w-6"
                         fill="none"
                         stroke="currentColor"
-                        stroke-width="2"
                         viewBox="0 0 24 24"
                     >
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
+                            stroke-width="2"
                             d="M6 6l12 12M18 6L6 18"
                         />
                     </svg>
@@ -686,7 +737,7 @@
                 </button>
 
 
-                {{-- Gambar Popout --}}
+                {{-- Image --}}
 
                 <div
                     class="relative flex h-full w-full items-center justify-center"
@@ -694,19 +745,19 @@
 
                     <img
                         :src="urls[i]"
-                        :alt="'Dokumentasi ' + (i + 1) + ' - {{ $article->judul_siaran_pers }}'"
+                        :alt="'Dokumentasi ' + (i + 1) + ' - {{ addslashes($article->judul_siaran_pers) }}'"
                         class="max-h-[90vh] max-w-[95vw] rounded-lg object-contain shadow-2xl"
-                        @click.stop
+                        x-on:click.stop
                     >
 
 
-                    {{-- Tombol Sebelumnya --}}
+                    {{-- Previous --}}
 
                     <template x-if="urls.length > 1">
 
                         <button
                             type="button"
-                            @click.stop="prev()"
+                            x-on:click.stop="prev()"
                             class="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-white/25 sm:left-6 sm:h-12 sm:w-12"
                             aria-label="Gambar sebelumnya"
                         >
@@ -715,12 +766,12 @@
                                 class="h-6 w-6"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="2"
                                 viewBox="0 0 24 24"
                             >
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
+                                    stroke-width="2"
                                     d="M15 19l-7-7 7-7"
                                 />
                             </svg>
@@ -730,13 +781,13 @@
                     </template>
 
 
-                    {{-- Tombol Berikutnya --}}
+                    {{-- Next --}}
 
                     <template x-if="urls.length > 1">
 
                         <button
                             type="button"
-                            @click.stop="next()"
+                            x-on:click.stop="next()"
                             class="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-white/25 sm:right-6 sm:h-12 sm:w-12"
                             aria-label="Gambar berikutnya"
                         >
@@ -745,12 +796,12 @@
                                 class="h-6 w-6"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="2"
                                 viewBox="0 0 24 24"
                             >
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
+                                    stroke-width="2"
                                     d="M9 5l7 7-7 7"
                                 />
                             </svg>
@@ -760,13 +811,17 @@
                     </template>
 
 
-                    {{-- Counter Lightbox --}}
+                    {{-- Counter --}}
 
                     <div
                         x-show="urls.length > 1"
                         class="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-4 py-2 text-sm font-medium text-white"
                     >
-                        <span x-text="(i + 1) + ' / ' + urls.length"></span>
+
+                        <span
+                            x-text="(i + 1) + ' / ' + urls.length"
+                        ></span>
+
                     </div>
 
                 </div>
@@ -778,17 +833,23 @@
     @endif
 
 
-    {{-- =====================================================
+    {{-- =========================================================
          ARTICLE BODY
-         ===================================================== --}}
+         ========================================================= --}}
 
     <article
         class="prose prose-lg prose-gray max-w-none
-               prose-headings:font-bold prose-headings:text-gray-900
-               prose-a:text-indigo-600 prose-a:no-underline hover:prose-a:underline
-               prose-img:rounded-xl prose-img:shadow-sm
-               prose-blockquote:border-l-indigo-500 prose-blockquote:bg-indigo-50/50
-               prose-blockquote:py-1 prose-blockquote:not-italic
+               prose-headings:font-bold
+               prose-headings:text-gray-900
+               prose-a:text-indigo-600
+               prose-a:no-underline
+               hover:prose-a:underline
+               prose-img:rounded-xl
+               prose-img:shadow-sm
+               prose-blockquote:border-l-indigo-500
+               prose-blockquote:bg-indigo-50/50
+               prose-blockquote:py-1
+               prose-blockquote:not-italic
                mb-12"
     >
 
@@ -797,16 +858,16 @@
     </article>
 
 
-    {{-- =====================================================
+    {{-- =========================================================
          DIVIDER
-         ===================================================== --}}
+         ========================================================= --}}
 
     <hr class="border-gray-100 mb-10">
 
 
-    {{-- =====================================================
-         RELATED ARTICLES
-         ===================================================== --}}
+    {{-- =========================================================
+         BERITA TERKAIT
+         ========================================================= --}}
 
     @if ($related->isNotEmpty())
 
@@ -817,7 +878,9 @@
                 class="text-xl font-bold text-gray-900 mb-5 flex items-center gap-2"
             >
 
-                <span class="w-1 h-6 bg-indigo-600 rounded-full"></span>
+                <span
+                    class="w-1 h-6 bg-indigo-600 rounded-full"
+                ></span>
 
                 Berita Terkait
 
@@ -835,7 +898,9 @@
                         class="group flex gap-3 p-3 rounded-xl border border-gray-100 bg-white hover:border-indigo-100 hover:shadow-md hover:shadow-indigo-50 transition-all duration-200"
                     >
 
-                        {{-- Related Thumbnail --}}
+                        {{-- =================================================
+                             RELATED THUMBNAIL
+                             ================================================= --}}
 
                         @php
 
@@ -856,6 +921,7 @@
                             }
 
                             if (is_array($relatedThumbnail)) {
+
                                 $relatedThumbnail =
                                     $relatedThumbnail[0] ?? null;
                             }
@@ -863,12 +929,19 @@
                         @endphp
 
 
-                        @if ($relatedThumbnail)
+                        @if (
+                            is_string($relatedThumbnail)
+                            && trim($relatedThumbnail) !== ''
+                        )
 
-                            <div class="w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                            <div
+                                class="w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-gray-100"
+                            >
 
                                 <img
-                                    src="{{ \Illuminate\Support\Facades\Storage::url($relatedThumbnail) }}"
+                                    src="{{ route('media.warta', [
+                                        'filename' => basename($relatedThumbnail),
+                                    ]) }}"
                                     alt="{{ $item->judul_siaran_pers }}"
                                     loading="lazy"
                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -879,7 +952,11 @@
                         @endif
 
 
-                        <div class="flex flex-col justify-center min-w-0">
+                        {{-- Related content --}}
+
+                        <div
+                            class="flex flex-col justify-center min-w-0"
+                        >
 
                             <h3
                                 class="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-indigo-600 transition-colors mb-1"
@@ -891,8 +968,11 @@
                             <small class="text-xs text-gray-400">
 
                                 {{
-                                    $item->jadwal_tayang?->locale('id')->translatedFormat('d F Y')
-                                    ?? 'Tanggal tidak tersedia'
+                                    $item->jadwal_tayang
+                                        ? $item->jadwal_tayang
+                                            ->locale('id')
+                                            ->translatedFormat('d F Y')
+                                        : 'Tanggal tidak tersedia'
                                 }}
 
                             </small>
